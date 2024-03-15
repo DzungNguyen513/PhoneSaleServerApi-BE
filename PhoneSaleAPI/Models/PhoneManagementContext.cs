@@ -20,10 +20,12 @@ namespace PhoneSaleAPI.Models
         public virtual DbSet<Bill> Bills { get; set; } = null!;
         public virtual DbSet<BillDetail> BillDetails { get; set; } = null!;
         public virtual DbSet<Category> Categories { get; set; } = null!;
+        public virtual DbSet<Color> Colors { get; set; } = null!;
         public virtual DbSet<Customer> Customers { get; set; } = null!;
         public virtual DbSet<Employee> Employees { get; set; } = null!;
         public virtual DbSet<Product> Products { get; set; } = null!;
         public virtual DbSet<ShoppingCart> ShoppingCarts { get; set; } = null!;
+        public virtual DbSet<Storage> Storages { get; set; } = null!;
         public virtual DbSet<Vendor> Vendors { get; set; } = null!;
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
@@ -40,22 +42,13 @@ namespace PhoneSaleAPI.Models
             modelBuilder.Entity<Account>(entity =>
             {
                 entity.HasKey(e => e.Username)
-                    .HasName("PK__Account__536C85E58AF2665D");
+                    .HasName("PK__Account__536C85E5842A4262");
 
                 entity.ToTable("Account");
 
-                entity.Property(e => e.Username).HasMaxLength(20);
+                entity.Property(e => e.Username).HasMaxLength(30);
 
-                entity.Property(e => e.EmployeeId)
-                    .HasMaxLength(20)
-                    .HasColumnName("EmployeeID");
-
-                entity.Property(e => e.Password).HasMaxLength(20);
-
-                entity.HasOne(d => d.Employee)
-                    .WithMany(p => p.Accounts)
-                    .HasForeignKey(d => d.EmployeeId)
-                    .HasConstraintName("FK_Account_EmployeeID");
+                entity.Property(e => e.Password).HasMaxLength(100);
             });
 
             modelBuilder.Entity<Bill>(entity =>
@@ -63,17 +56,17 @@ namespace PhoneSaleAPI.Models
                 entity.ToTable("Bill");
 
                 entity.Property(e => e.BillId)
-                    .HasMaxLength(20)
+                    .HasMaxLength(30)
                     .HasColumnName("BillID");
 
                 entity.Property(e => e.CustomerId)
-                    .HasMaxLength(20)
+                    .HasMaxLength(30)
                     .HasColumnName("CustomerID");
 
                 entity.Property(e => e.DateBill).HasColumnType("date");
 
                 entity.Property(e => e.EmployeeId)
-                    .HasMaxLength(20)
+                    .HasMaxLength(30)
                     .HasColumnName("EmployeeID");
 
                 entity.Property(e => e.TotalBill).HasColumnType("money");
@@ -96,11 +89,11 @@ namespace PhoneSaleAPI.Models
                 entity.ToTable("BillDetail");
 
                 entity.Property(e => e.BillId)
-                    .HasMaxLength(20)
+                    .HasMaxLength(30)
                     .HasColumnName("BillID");
 
                 entity.Property(e => e.ProductId)
-                    .HasMaxLength(20)
+                    .HasMaxLength(30)
                     .HasColumnName("ProductID");
 
                 entity.Property(e => e.Price).HasColumnType("money");
@@ -125,32 +118,44 @@ namespace PhoneSaleAPI.Models
                 entity.ToTable("Category");
 
                 entity.Property(e => e.CategoryId)
-                    .HasMaxLength(20)
+                    .HasMaxLength(30)
                     .HasColumnName("CategoryID");
 
-                entity.Property(e => e.CategoryName).HasMaxLength(20);
+                entity.Property(e => e.CategoryName).HasMaxLength(30);
+            });
+
+            modelBuilder.Entity<Color>(entity =>
+            {
+                entity.HasKey(e => e.ColorName)
+                    .HasName("PK__Color__C71A5A7A2EB8BC85");
+
+                entity.ToTable("Color");
+
+                entity.Property(e => e.ColorName).HasMaxLength(50);
+
+                entity.Property(e => e.ColorPrice).HasColumnType("money");
             });
 
             modelBuilder.Entity<Customer>(entity =>
             {
                 entity.ToTable("Customer");
 
-                entity.HasIndex(e => e.Email, "UQ__Customer__A9D10534D08047FE")
+                entity.HasIndex(e => e.Email, "UQ__Customer__A9D105341DEF8685")
                     .IsUnique();
 
                 entity.Property(e => e.CustomerId)
-                    .HasMaxLength(20)
+                    .HasMaxLength(30)
                     .HasColumnName("CustomerID");
 
-                entity.Property(e => e.Address).HasMaxLength(20);
+                entity.Property(e => e.Address).HasMaxLength(50);
 
-                entity.Property(e => e.CustomerName).HasMaxLength(20);
+                entity.Property(e => e.CustomerName).HasMaxLength(30);
 
-                entity.Property(e => e.Email).HasMaxLength(20);
+                entity.Property(e => e.Email).HasMaxLength(50);
 
-                entity.Property(e => e.Password).HasMaxLength(20);
+                entity.Property(e => e.Password).HasMaxLength(100);
 
-                entity.Property(e => e.Sdt).HasMaxLength(20);
+                entity.Property(e => e.PhoneNumber).HasMaxLength(20);
             });
 
             modelBuilder.Entity<Employee>(entity =>
@@ -158,12 +163,12 @@ namespace PhoneSaleAPI.Models
                 entity.ToTable("Employee");
 
                 entity.Property(e => e.EmployeeId)
-                    .HasMaxLength(20)
+                    .HasMaxLength(30)
                     .HasColumnName("EmployeeID");
 
-                entity.Property(e => e.EmployeeName).HasMaxLength(20);
+                entity.Property(e => e.EmployeeName).HasMaxLength(30);
 
-                entity.Property(e => e.PhoneNumber).HasMaxLength(10);
+                entity.Property(e => e.PhoneNumber).HasMaxLength(30);
             });
 
             modelBuilder.Entity<Product>(entity =>
@@ -171,27 +176,41 @@ namespace PhoneSaleAPI.Models
                 entity.ToTable("Product");
 
                 entity.Property(e => e.ProductId)
-                    .HasMaxLength(20)
+                    .HasMaxLength(30)
                     .HasColumnName("ProductID");
 
                 entity.Property(e => e.CategoryId)
-                    .HasMaxLength(20)
+                    .HasMaxLength(30)
                     .HasColumnName("CategoryID");
+
+                entity.Property(e => e.ColorName).HasMaxLength(50);
 
                 entity.Property(e => e.Img).HasMaxLength(50);
 
                 entity.Property(e => e.Price).HasColumnType("money");
 
-                entity.Property(e => e.ProductName).HasMaxLength(20);
+                entity.Property(e => e.ProductName).HasMaxLength(30);
+
+                entity.Property(e => e.StorageGb).HasColumnName("StorageGB");
 
                 entity.Property(e => e.VendorId)
-                    .HasMaxLength(20)
+                    .HasMaxLength(30)
                     .HasColumnName("VendorID");
 
                 entity.HasOne(d => d.Category)
                     .WithMany(p => p.Products)
                     .HasForeignKey(d => d.CategoryId)
                     .HasConstraintName("FK_Product_CategoryID");
+
+                entity.HasOne(d => d.ColorNameNavigation)
+                    .WithMany(p => p.Products)
+                    .HasForeignKey(d => d.ColorName)
+                    .HasConstraintName("FK_Product_ColorName");
+
+                entity.HasOne(d => d.StorageGbNavigation)
+                    .WithMany(p => p.Products)
+                    .HasForeignKey(d => d.StorageGb)
+                    .HasConstraintName("FK_Product_StorageGB");
 
                 entity.HasOne(d => d.Vendor)
                     .WithMany(p => p.Products)
@@ -201,20 +220,30 @@ namespace PhoneSaleAPI.Models
 
             modelBuilder.Entity<ShoppingCart>(entity =>
             {
-                entity.HasKey(e => new { e.ShoppingCartId, e.ProductId })
-                    .HasName("PK__Shopping__B13856EACD71A876");
+                entity.HasKey(e => new { e.ShoppingCartId, e.ProductId, e.CustomerId })
+                    .HasName("PK__Shopping__089CF88EDA95E330");
 
                 entity.ToTable("ShoppingCart");
 
                 entity.Property(e => e.ShoppingCartId)
-                    .HasMaxLength(20)
+                    .HasMaxLength(30)
                     .HasColumnName("ShoppingCartID");
 
                 entity.Property(e => e.ProductId)
-                    .HasMaxLength(20)
+                    .HasMaxLength(30)
                     .HasColumnName("ProductID");
 
+                entity.Property(e => e.CustomerId)
+                    .HasMaxLength(30)
+                    .HasColumnName("CustomerID");
+
                 entity.Property(e => e.TotalCart).HasColumnType("money");
+
+                entity.HasOne(d => d.Customer)
+                    .WithMany(p => p.ShoppingCarts)
+                    .HasForeignKey(d => d.CustomerId)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_ShoppingCart_CustomerID");
 
                 entity.HasOne(d => d.Product)
                     .WithMany(p => p.ShoppingCarts)
@@ -223,19 +252,33 @@ namespace PhoneSaleAPI.Models
                     .HasConstraintName("FK_ShoppingCart_ProductID");
             });
 
+            modelBuilder.Entity<Storage>(entity =>
+            {
+                entity.HasKey(e => e.StorageGb)
+                    .HasName("PK__Storage__8A246E77B7BD4169");
+
+                entity.ToTable("Storage");
+
+                entity.Property(e => e.StorageGb)
+                    .ValueGeneratedNever()
+                    .HasColumnName("StorageGB");
+
+                entity.Property(e => e.StoragePrice).HasColumnType("money");
+            });
+
             modelBuilder.Entity<Vendor>(entity =>
             {
                 entity.ToTable("Vendor");
 
                 entity.Property(e => e.VendorId)
-                    .HasMaxLength(20)
+                    .HasMaxLength(30)
                     .HasColumnName("VendorID");
 
-                entity.Property(e => e.Address).HasMaxLength(20);
+                entity.Property(e => e.Address).HasMaxLength(30);
 
-                entity.Property(e => e.Phone).HasMaxLength(20);
+                entity.Property(e => e.PhoneNumber).HasMaxLength(20);
 
-                entity.Property(e => e.VendorName).HasMaxLength(20);
+                entity.Property(e => e.VendorName).HasMaxLength(30);
             });
 
             OnModelCreatingPartial(modelBuilder);

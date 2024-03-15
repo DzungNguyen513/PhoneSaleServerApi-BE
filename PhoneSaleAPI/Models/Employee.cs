@@ -7,7 +7,6 @@ namespace PhoneSaleAPI.Models
     {
         public Employee()
         {
-            Accounts = new HashSet<Account>();
             Bills = new HashSet<Bill>();
         }
 
@@ -16,7 +15,6 @@ namespace PhoneSaleAPI.Models
         public string? PhoneNumber { get; set; }
         public int? Status { get; set; }
 
-        public virtual ICollection<Account> Accounts { get; set; }
         public virtual ICollection<Bill> Bills { get; set; }
     }
 }
