@@ -12,7 +12,7 @@ namespace PhoneSaleAPI.Models
 
         public string ShoppingCartId { get; set; } = null!;
         public string CustomerId { get; set; } = null!;
-        public decimal? TotalCart { get; set; }
+        public int? TotalCart { get; set; }
         public int? Status { get; set; }
 
         public virtual Customer Customer { get; set; } = null!;

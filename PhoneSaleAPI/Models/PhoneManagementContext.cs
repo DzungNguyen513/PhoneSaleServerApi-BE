@@ -43,7 +43,7 @@ namespace PhoneSaleAPI.Models
             modelBuilder.Entity<Account>(entity =>
             {
                 entity.HasKey(e => e.Username)
-                    .HasName("PK__Account__536C85E5D35121D9");
+                    .HasName("PK__Account__536C85E5283A5209");
 
                 entity.ToTable("Account");
 
@@ -70,8 +70,6 @@ namespace PhoneSaleAPI.Models
                     .HasMaxLength(30)
                     .HasColumnName("EmployeeID");
 
-                entity.Property(e => e.TotalBill).HasColumnType("money");
-
                 entity.HasOne(d => d.Customer)
                     .WithMany(p => p.Bills)
                     .HasForeignKey(d => d.CustomerId)
@@ -96,10 +94,6 @@ namespace PhoneSaleAPI.Models
                 entity.Property(e => e.ProductId)
                     .HasMaxLength(30)
                     .HasColumnName("ProductID");
-
-                entity.Property(e => e.Price).HasColumnType("money");
-
-                entity.Property(e => e.Total).HasColumnType("money");
 
                 entity.HasOne(d => d.Bill)
                     .WithMany(p => p.BillDetails)
@@ -128,20 +122,18 @@ namespace PhoneSaleAPI.Models
             modelBuilder.Entity<Color>(entity =>
             {
                 entity.HasKey(e => e.ColorName)
-                    .HasName("PK__Color__C71A5A7A6CA5EB81");
+                    .HasName("PK__Color__C71A5A7ABD3CA344");
 
                 entity.ToTable("Color");
 
                 entity.Property(e => e.ColorName).HasMaxLength(50);
-
-                entity.Property(e => e.ColorPrice).HasColumnType("money");
             });
 
             modelBuilder.Entity<Customer>(entity =>
             {
                 entity.ToTable("Customer");
 
-                entity.HasIndex(e => e.Email, "UQ__Customer__A9D10534B6F01578")
+                entity.HasIndex(e => e.Email, "UQ__Customer__A9D10534CF7FF7B1")
                     .IsUnique();
 
                 entity.Property(e => e.CustomerId)
@@ -188,8 +180,6 @@ namespace PhoneSaleAPI.Models
 
                 entity.Property(e => e.Img).HasMaxLength(50);
 
-                entity.Property(e => e.Price).HasColumnType("money");
-
                 entity.Property(e => e.ProductName).HasMaxLength(30);
 
                 entity.Property(e => e.StorageGb).HasColumnName("StorageGB");
@@ -223,7 +213,7 @@ namespace PhoneSaleAPI.Models
             {
                 entity.ToTable("ShoppingCart");
 
-                entity.HasIndex(e => e.CustomerId, "UQ__Shopping__A4AE64B9A02CEFC3")
+                entity.HasIndex(e => e.CustomerId, "UQ__Shopping__A4AE64B9E0DBE575")
                     .IsUnique();
 
                 entity.Property(e => e.ShoppingCartId)
@@ -233,8 +223,6 @@ namespace PhoneSaleAPI.Models
                 entity.Property(e => e.CustomerId)
                     .HasMaxLength(30)
                     .HasColumnName("CustomerID");
-
-                entity.Property(e => e.TotalCart).HasColumnType("money");
 
                 entity.HasOne(d => d.Customer)
                     .WithOne(p => p.ShoppingCart)
@@ -246,7 +234,7 @@ namespace PhoneSaleAPI.Models
             modelBuilder.Entity<ShoppingCartDetail>(entity =>
             {
                 entity.HasKey(e => new { e.ShoppingCartId, e.ProductId })
-                    .HasName("PK__Shopping__B13856EACF10D50A");
+                    .HasName("PK__Shopping__B13856EA8A89FBE8");
 
                 entity.ToTable("ShoppingCartDetail");
 
@@ -257,10 +245,6 @@ namespace PhoneSaleAPI.Models
                 entity.Property(e => e.ProductId)
                     .HasMaxLength(30)
                     .HasColumnName("ProductID");
-
-                entity.Property(e => e.Price).HasColumnType("money");
-
-                entity.Property(e => e.Total).HasColumnType("money");
 
                 entity.HasOne(d => d.Product)
                     .WithMany(p => p.ShoppingCartDetails)
@@ -278,15 +262,13 @@ namespace PhoneSaleAPI.Models
             modelBuilder.Entity<Storage>(entity =>
             {
                 entity.HasKey(e => e.StorageGb)
-                    .HasName("PK__Storage__8A246E77C43358A7");
+                    .HasName("PK__Storage__8A246E773FB80672");
 
                 entity.ToTable("Storage");
 
                 entity.Property(e => e.StorageGb)
                     .ValueGeneratedNever()
                     .HasColumnName("StorageGB");
-
-                entity.Property(e => e.StoragePrice).HasColumnType("money");
             });
 
             modelBuilder.Entity<Vendor>(entity =>

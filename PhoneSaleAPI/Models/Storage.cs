@@ -11,7 +11,7 @@ namespace PhoneSaleAPI.Models
         }
 
         public int StorageGb { get; set; }
-        public decimal? StoragePrice { get; set; }
+        public int? StoragePrice { get; set; }
 
         public virtual ICollection<Product> Products { get; set; }
     }

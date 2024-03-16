@@ -16,7 +16,7 @@ namespace PhoneSaleAPI.Models
         public int? StorageGb { get; set; }
         public string? ColorName { get; set; }
         public int? Amount { get; set; }
-        public decimal? Price { get; set; }
+        public int? Price { get; set; }
         public string? CategoryId { get; set; }
         public string? VendorId { get; set; }
         public string? Detail { get; set; }

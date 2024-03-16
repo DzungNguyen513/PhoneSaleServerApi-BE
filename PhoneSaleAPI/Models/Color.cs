@@ -11,7 +11,7 @@ namespace PhoneSaleAPI.Models
         }
 
         public string ColorName { get; set; } = null!;
-        public decimal? ColorPrice { get; set; }
+        public int? ColorPrice { get; set; }
 
         public virtual ICollection<Product> Products { get; set; }
     }
