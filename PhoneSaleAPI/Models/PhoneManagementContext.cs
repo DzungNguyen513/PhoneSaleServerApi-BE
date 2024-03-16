@@ -25,6 +25,7 @@ namespace PhoneSaleAPI.Models
         public virtual DbSet<Employee> Employees { get; set; } = null!;
         public virtual DbSet<Product> Products { get; set; } = null!;
         public virtual DbSet<ShoppingCart> ShoppingCarts { get; set; } = null!;
+        public virtual DbSet<ShoppingCartDetail> ShoppingCartDetails { get; set; } = null!;
         public virtual DbSet<Storage> Storages { get; set; } = null!;
         public virtual DbSet<Vendor> Vendors { get; set; } = null!;
 
@@ -42,7 +43,7 @@ namespace PhoneSaleAPI.Models
             modelBuilder.Entity<Account>(entity =>
             {
                 entity.HasKey(e => e.Username)
-                    .HasName("PK__Account__536C85E5842A4262");
+                    .HasName("PK__Account__536C85E5D35121D9");
 
                 entity.ToTable("Account");
 
@@ -127,7 +128,7 @@ namespace PhoneSaleAPI.Models
             modelBuilder.Entity<Color>(entity =>
             {
                 entity.HasKey(e => e.ColorName)
-                    .HasName("PK__Color__C71A5A7A2EB8BC85");
+                    .HasName("PK__Color__C71A5A7A6CA5EB81");
 
                 entity.ToTable("Color");
 
@@ -140,7 +141,7 @@ namespace PhoneSaleAPI.Models
             {
                 entity.ToTable("Customer");
 
-                entity.HasIndex(e => e.Email, "UQ__Customer__A9D105341DEF8685")
+                entity.HasIndex(e => e.Email, "UQ__Customer__A9D10534B6F01578")
                     .IsUnique();
 
                 entity.Property(e => e.CustomerId)
@@ -220,10 +221,34 @@ namespace PhoneSaleAPI.Models
 
             modelBuilder.Entity<ShoppingCart>(entity =>
             {
-                entity.HasKey(e => new { e.ShoppingCartId, e.ProductId, e.CustomerId })
-                    .HasName("PK__Shopping__089CF88EDA95E330");
-
                 entity.ToTable("ShoppingCart");
+
+                entity.HasIndex(e => e.CustomerId, "UQ__Shopping__A4AE64B9A02CEFC3")
+                    .IsUnique();
+
+                entity.Property(e => e.ShoppingCartId)
+                    .HasMaxLength(30)
+                    .HasColumnName("ShoppingCartID");
+
+                entity.Property(e => e.CustomerId)
+                    .HasMaxLength(30)
+                    .HasColumnName("CustomerID");
+
+                entity.Property(e => e.TotalCart).HasColumnType("money");
+
+                entity.HasOne(d => d.Customer)
+                    .WithOne(p => p.ShoppingCart)
+                    .HasForeignKey<ShoppingCart>(d => d.CustomerId)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_ShoppingCart_CustomerID");
+            });
+
+            modelBuilder.Entity<ShoppingCartDetail>(entity =>
+            {
+                entity.HasKey(e => new { e.ShoppingCartId, e.ProductId })
+                    .HasName("PK__Shopping__B13856EACF10D50A");
+
+                entity.ToTable("ShoppingCartDetail");
 
                 entity.Property(e => e.ShoppingCartId)
                     .HasMaxLength(30)
@@ -233,29 +258,27 @@ namespace PhoneSaleAPI.Models
                     .HasMaxLength(30)
                     .HasColumnName("ProductID");
 
-                entity.Property(e => e.CustomerId)
-                    .HasMaxLength(30)
-                    .HasColumnName("CustomerID");
+                entity.Property(e => e.Price).HasColumnType("money");
 
-                entity.Property(e => e.TotalCart).HasColumnType("money");
-
-                entity.HasOne(d => d.Customer)
-                    .WithMany(p => p.ShoppingCarts)
-                    .HasForeignKey(d => d.CustomerId)
-                    .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FK_ShoppingCart_CustomerID");
+                entity.Property(e => e.Total).HasColumnType("money");
 
                 entity.HasOne(d => d.Product)
-                    .WithMany(p => p.ShoppingCarts)
+                    .WithMany(p => p.ShoppingCartDetails)
                     .HasForeignKey(d => d.ProductId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FK_ShoppingCart_ProductID");
+                    .HasConstraintName("FK_ShoppingCartDetail_ProductID");
+
+                entity.HasOne(d => d.ShoppingCart)
+                    .WithMany(p => p.ShoppingCartDetails)
+                    .HasForeignKey(d => d.ShoppingCartId)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_ShoppingCartDetail_ShoppingCartID");
             });
 
             modelBuilder.Entity<Storage>(entity =>
             {
                 entity.HasKey(e => e.StorageGb)
-                    .HasName("PK__Storage__8A246E77B7BD4169");
+                    .HasName("PK__Storage__8A246E77C43358A7");
 
                 entity.ToTable("Storage");
 

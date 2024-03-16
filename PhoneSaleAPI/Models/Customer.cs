@@ -8,7 +8,6 @@ namespace PhoneSaleAPI.Models
         public Customer()
         {
             Bills = new HashSet<Bill>();
-            ShoppingCarts = new HashSet<ShoppingCart>();
         }
 
         public string CustomerId { get; set; } = null!;
@@ -18,7 +17,7 @@ namespace PhoneSaleAPI.Models
         public string? PhoneNumber { get; set; }
         public string? Address { get; set; }
 
+        public virtual ShoppingCart? ShoppingCart { get; set; }
         public virtual ICollection<Bill> Bills { get; set; }
-        public virtual ICollection<ShoppingCart> ShoppingCarts { get; set; }
     }
 }

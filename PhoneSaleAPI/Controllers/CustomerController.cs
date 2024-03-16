@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Cryptography;
+using System.Text;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -79,6 +81,9 @@ namespace PhoneSaleAPI.Controllers
 
             return NoContent();
         }
+
+        // POST: api/Customer
+        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
         public async Task<ActionResult<Customer>> PostCustomer(Customer customer)
         {
@@ -106,6 +111,7 @@ namespace PhoneSaleAPI.Controllers
             return CreatedAtAction("GetCustomer", new { id = customer.CustomerId }, customer);
         }
 
+        // DELETE: api/Customer/5
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteCustomer(string id)
         {
@@ -130,7 +136,6 @@ namespace PhoneSaleAPI.Controllers
             return (_context.Customers?.Any(e => e.CustomerId == id)).GetValueOrDefault();
         }
 
-
         [HttpPost("Register")]
         public async Task<IActionResult> Register([FromBody] RegisterCustomerModel model)
         {
@@ -139,46 +144,71 @@ namespace PhoneSaleAPI.Controllers
                 return BadRequest(new { success = false, message = "Dữ liệu không hợp lệ" });
             }
 
-            try
+            var existingCustomer = await _context.Customers.FirstOrDefaultAsync(c => c.Email == model.Email);
+            if (existingCustomer != null)
             {
-                var existingCustomer = await _context.Customers.FirstOrDefaultAsync(c => c.Email == model.Email);
-                if (existingCustomer != null)
-                {
-                    return Conflict(new { success = false, message = "Email đã tồn tại trong hệ thống" });
-                }
-
-                string customerId = GenerateRandomString(10);
-                Customer customer = new Customer
-                {
-                    CustomerId = customerId,
-                    Email = model.Email,
-                    Password = model.Password,
-                };
-
-                _context.Customers.Add(customer);
-                await _context.SaveChangesAsync();
-
-                return Ok(new { success = true, message = "Đăng ký thành công" });
+                return Conflict(new { success = false, message = "Email đã tồn tại trong hệ thống" });
             }
-            catch (Exception ex)
+
+            // Mã hóa mật khẩu trước khi lưu vào cơ sở dữ liệu
+            var hashedPassword = HashPassword(model.Password);
+
+            var newCustomerId = await GenerateNewCustomerId();
+
+            Customer customer = new Customer
             {
-                return StatusCode(500, new { success = false, message = "Đã xảy ra lỗi trong quá trình đăng ký", error = ex.Message });
+                CustomerId = newCustomerId,
+                Email = model.Email,
+                Password = hashedPassword, // Sử dụng mật khẩu đã mã hóa
+            };
+
+            _context.Customers.Add(customer);
+            await _context.SaveChangesAsync();
+
+            // Tạo giỏ hàng mới cho khách hàng
+            var shoppingCart = new ShoppingCart
+            {
+                ShoppingCartId = $"GH{newCustomerId.Substring(3)}", // Giả định ShoppingCartId và CustomerId có cùng cấu trúc số
+                CustomerId = newCustomerId,
+                TotalCart = 0,
+                Status = 1,
+            };
+
+            _context.ShoppingCarts.Add(shoppingCart);
+            await _context.SaveChangesAsync();
+
+            return Ok(new { success = true, message = "Đăng ký thành công", customerId = newCustomerId });
+        }
+
+        private string HashPassword(string password)
+        {
+            using (var sha256 = SHA256.Create())
+            {
+                var hashedBytes = sha256.ComputeHash(Encoding.UTF8.GetBytes(password));
+                return BitConverter.ToString(hashedBytes).Replace("-", "").ToLower();
             }
         }
 
-        public class RegisterCustomerModel
+        private async Task<string> GenerateNewCustomerId()
         {
-            public string Email { get; set; }
-            public string Password { get; set; }
-        }
+            var lastCustomerId = await _context.Customers
+                .OrderByDescending(c => c.CustomerId)
+                .Select(c => c.CustomerId)
+                .FirstOrDefaultAsync();
 
-        private string GenerateRandomString(int length)
-        {
-            const string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-            var random = new Random();
-            return new string(Enumerable.Repeat(chars, length)
-                .Select(s => s[random.Next(s.Length)]).ToArray());
-        }
+            int nextIdNumber = 1;
+            if (lastCustomerId != null && lastCustomerId.StartsWith("MKH"))
+            {
+                int.TryParse(lastCustomerId.Substring(3), out nextIdNumber);
+                nextIdNumber++;
+            }
 
+            return $"MKH{nextIdNumber:000}";
+        }
+    }
+    public class RegisterCustomerModel
+    {
+        public string Email { get; set; }
+        public string Password { get; set; }
     }
 }

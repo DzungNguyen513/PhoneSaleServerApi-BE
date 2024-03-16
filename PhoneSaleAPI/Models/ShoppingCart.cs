@@ -5,14 +5,17 @@ namespace PhoneSaleAPI.Models
 {
     public partial class ShoppingCart
     {
+        public ShoppingCart()
+        {
+            ShoppingCartDetails = new HashSet<ShoppingCartDetail>();
+        }
+
         public string ShoppingCartId { get; set; } = null!;
-        public string ProductId { get; set; } = null!;
         public string CustomerId { get; set; } = null!;
-        public int? Amount { get; set; }
         public decimal? TotalCart { get; set; }
         public int? Status { get; set; }
 
         public virtual Customer Customer { get; set; } = null!;
-        public virtual Product Product { get; set; } = null!;
+        public virtual ICollection<ShoppingCartDetail> ShoppingCartDetails { get; set; }
     }
 }
