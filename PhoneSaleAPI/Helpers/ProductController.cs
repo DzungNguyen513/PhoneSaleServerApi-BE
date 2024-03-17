@@ -5,21 +5,19 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using PhoneSaleAPI.DTO;
 using PhoneSaleAPI.Models;
 
-namespace PhoneSaleAPI.Controllers
+namespace PhoneSaleAPI.Helpers
 {
     [Route("api/[controller]")]
     [ApiController]
     public class ProductController : ControllerBase
     {
         private readonly PhoneManagementContext _context;
-        private readonly IWebHostEnvironment _environment;
-        public ProductController(PhoneManagementContext context, IWebHostEnvironment environment)
+
+        public ProductController(PhoneManagementContext context)
         {
             _context = context;
-            _environment = environment;
         }
 
         // GET: api/Product
@@ -135,60 +133,5 @@ namespace PhoneSaleAPI.Controllers
         {
             return (_context.Products?.Any(e => e.ProductId == id)).GetValueOrDefault();
         }
-
-        [HttpPost("CreateProduct")]
-        public async Task<IActionResult> CreateProduct([FromForm] ProductCreateModel productDTO)
-        {
-            if (productDTO.ImageFile != null)
-            {
-                var folderName = Path.Combine("Assets", "Images");
-                var pathToSave = Path.Combine(Directory.GetCurrentDirectory(), folderName);
-
-                if (!Directory.Exists(pathToSave))
-                {
-                    Directory.CreateDirectory(pathToSave);
-                }
-
-                var fileName = Path.GetFileNameWithoutExtension(productDTO.ImageFile.FileName);
-                var extension = Path.GetExtension(productDTO.ImageFile.FileName);
-                fileName = $"{fileName}{extension}";
-                var fullPath = Path.Combine(pathToSave, fileName);
-
-                using (var stream = new FileStream(fullPath, FileMode.Create))
-                {
-                    await productDTO.ImageFile.CopyToAsync(stream);
-                }
-
-                var dbPath = Path.Combine(folderName, fileName);
-
-                var lastProduct = await _context.Products.OrderByDescending(p => p.ProductId).FirstOrDefaultAsync();
-                var productIdNumber = lastProduct != null ? int.Parse(lastProduct.ProductId.Replace("PRD", "")) + 1 : 1;
-                var newProductId = $"PRD{productIdNumber:000}";
-
-                var product = new Product
-                {
-                    ProductId = newProductId,
-                    ProductName = productDTO.ProductName,
-                    StorageGb = productDTO.StorageGB,
-                    Amount = productDTO.Amount,
-                    Price = productDTO.Price,
-                    CategoryId = productDTO.CategoryId,
-                    VendorId = productDTO.VendorId,
-                    Detail = productDTO.Detail,
-                    Img = fileName,
-                    Status = productDTO.Status
-                };
-
-                _context.Products.Add(product);
-                await _context.SaveChangesAsync();
-
-                return Ok(new { product.ProductId, product.Img });
-            }
-            else
-            {
-                return BadRequest("Không thể thêm hình ảnh");
-            }
-        }
-
     }
 }
