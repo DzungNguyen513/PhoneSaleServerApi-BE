@@ -204,6 +204,24 @@ namespace PhoneSaleAPI.Controllers
 
             return $"MKH{nextIdNumber:000}";
         }
+        [HttpGet("GetCustomerIDByEmail/{email}")]
+        public async Task<IActionResult> GetCustomerIDByEmail(string email)
+        {
+            if (string.IsNullOrWhiteSpace(email))
+            {
+                return BadRequest(new { error = "Email is required" });
+            }
+
+            var customer = await _context.Customers
+                                          .FirstOrDefaultAsync(c => c.Email == email);
+            if (customer == null)
+            {
+                return NotFound(new { error = "Customer not found" });
+            }
+
+            return Ok(new { customerId = customer.CustomerId });
+        }
+
     }
-   
+
 }

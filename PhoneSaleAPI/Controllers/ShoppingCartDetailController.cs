@@ -20,32 +20,28 @@ namespace PhoneSaleAPI.Controllers
         {
             _context = context;
         }
-
-        [HttpGet("Details/{customerId}")]
-        public async Task<ActionResult<IEnumerable<ShoppingCartDetailDTO>>> GetShoppingCartDetails(string customerId)
+        [HttpGet("GetCartItems/{customerId}")]
+        public ActionResult<IEnumerable<CartItemDto>> GetCartItems(string customerId)
         {
-            var shoppingCart = await _context.ShoppingCarts
-                                             .FirstOrDefaultAsync(c => c.CustomerId == customerId);
+            var cartItems = (from product in _context.Products
+                             join cartDetail in _context.ShoppingCartDetails on product.ProductId equals cartDetail.ProductId
+                             join cart in _context.ShoppingCarts on cartDetail.ShoppingCartId equals cart.ShoppingCartId
+                             where cart.CustomerId == customerId
+                             select new CartItemDto
+                             {
+                                 ProductID = product.ProductId,
+                                 ProductName = product.ProductName,
+                                 Price = (int)cartDetail.Price,
+                                 Amount = (int)cartDetail.Amount,
+                                 Img = product.Img
+                             }).ToList();
 
-            if (shoppingCart == null)
+            if (cartItems == null || cartItems.Count == 0)
             {
                 return NotFound();
             }
 
-            var shoppingCartDetails = await _context.ShoppingCartDetails
-                .Where(d => d.ShoppingCartId == shoppingCart.ShoppingCartId)
-                .Include(d => d.Product)
-                .Select(d => new ShoppingCartDetailDTO
-                {
-                    ProductId = d.ProductId,
-                    ProductName = d.Product.ProductName,
-                    Price = (decimal)d.Price,
-                    Quantity = (int)d.Amount,
-                    Total = (decimal)d.Total
-                })
-                .ToListAsync();
-
-            return shoppingCartDetails;
+            return Ok(cartItems);
         }
 
     }

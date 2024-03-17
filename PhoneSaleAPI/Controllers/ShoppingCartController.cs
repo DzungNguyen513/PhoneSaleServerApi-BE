@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using PhoneSaleAPI.Models;
 
-namespace PhoneSaleAPI.Helpers
+namespace PhoneSaleAPI.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
@@ -133,5 +133,6 @@ namespace PhoneSaleAPI.Helpers
         {
             return (_context.ShoppingCarts?.Any(e => e.ShoppingCartId == id)).GetValueOrDefault();
         }
+        
     }
 }

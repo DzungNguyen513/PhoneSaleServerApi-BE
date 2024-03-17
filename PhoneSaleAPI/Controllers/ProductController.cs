@@ -170,6 +170,7 @@ namespace PhoneSaleAPI.Controllers
                     ProductId = newProductId,
                     ProductName = productDTO.ProductName,
                     StorageGb = productDTO.StorageGB,
+                    ColorName = productDTO.ColorName,
                     Amount = productDTO.Amount,
                     Price = productDTO.Price,
                     CategoryId = productDTO.CategoryId,
