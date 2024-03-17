@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using PhoneSaleAPI.DTO;
 using PhoneSaleAPI.Models;
 
 namespace PhoneSaleAPI.Controllers
@@ -206,9 +207,5 @@ namespace PhoneSaleAPI.Controllers
             return $"MKH{nextIdNumber:000}";
         }
     }
-    public class RegisterCustomerModel
-    {
-        public string Email { get; set; }
-        public string Password { get; set; }
-    }
+   
 }

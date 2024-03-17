@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using System.Security.Cryptography;
 using System.Text;
 using PhoneSaleAPI.Models;
+using PhoneSaleAPI.DTO;
 
 [ApiController]
 [Route("api/[controller]")]
@@ -49,8 +50,4 @@ public class LoginController : ControllerBase
     }
 }
 
-public class LoginModel
-{
-    public string Email { get; set; }
-    public string Password { get; set; }
-}
+
