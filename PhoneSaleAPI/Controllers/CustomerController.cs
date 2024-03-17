@@ -151,7 +151,6 @@ namespace PhoneSaleAPI.Controllers
                 return Conflict(new { success = false, message = "Email đã tồn tại trong hệ thống" });
             }
 
-            // Mã hóa mật khẩu trước khi lưu vào cơ sở dữ liệu
             var hashedPassword = HashPassword(model.Password);
 
             var newCustomerId = await GenerateNewCustomerId();
@@ -160,16 +159,15 @@ namespace PhoneSaleAPI.Controllers
             {
                 CustomerId = newCustomerId,
                 Email = model.Email,
-                Password = hashedPassword, // Sử dụng mật khẩu đã mã hóa
+                Password = hashedPassword, 
             };
 
             _context.Customers.Add(customer);
             await _context.SaveChangesAsync();
 
-            // Tạo giỏ hàng mới cho khách hàng
             var shoppingCart = new ShoppingCart
             {
-                ShoppingCartId = $"GH{newCustomerId.Substring(3)}", // Giả định ShoppingCartId và CustomerId có cùng cấu trúc số
+                ShoppingCartId = $"GH{newCustomerId.Substring(3)}", 
                 CustomerId = newCustomerId,
                 TotalCart = 0,
                 Status = 1,
