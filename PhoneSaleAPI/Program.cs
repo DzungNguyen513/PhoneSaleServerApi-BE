@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.FileProviders;
 using PhoneSaleAPI.Models;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -28,7 +29,12 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseStaticFiles();
-
+app.UseStaticFiles(new StaticFileOptions
+{
+    FileProvider = new PhysicalFileProvider(
+            Path.Combine(Directory.GetCurrentDirectory(), "Assets", "Images")),
+    RequestPath = "/Assets/Images"
+});
 app.UseHttpsRedirection();
 
 app.UseAuthorization();
