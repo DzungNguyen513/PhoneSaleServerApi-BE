@@ -29,6 +29,7 @@ namespace PhoneSaleAPI.Controllers
                              where cart.CustomerId == customerId
                              select new CartItemDto
                              {
+                                 ShoppingCartId = cart.ShoppingCartId,
                                  ProductID = product.ProductId,
                                  ProductName = product.ProductName,
                                  Price = (int)cartDetail.Price,
@@ -42,6 +43,27 @@ namespace PhoneSaleAPI.Controllers
             }
 
             return Ok(cartItems);
+        }
+        [HttpDelete("{shoppingCartId}/{productId}")]
+        public async Task<IActionResult> DeleteProductFromCart(string shoppingCartId, string productId)
+        {
+            if (_context.ShoppingCartDetails == null)
+            {
+                return NotFound("Không tìm thấy ShoppingCartDetail");
+            }
+            var shoppingCartDetail = await _context.ShoppingCartDetails
+                .Where(detail => detail.ShoppingCartId == shoppingCartId && detail.ProductId == productId)
+                .FirstOrDefaultAsync();
+
+            if (shoppingCartDetail == null)
+            {
+                return NotFound("Không có sản phẩm trong giỏ hàng");
+            }
+
+            _context.ShoppingCartDetails.Remove(shoppingCartDetail);
+            await _context.SaveChangesAsync();
+
+            return NoContent();
         }
 
     }

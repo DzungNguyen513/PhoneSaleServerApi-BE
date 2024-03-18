@@ -2,6 +2,7 @@
 {
     public class CartItemDto
     {
+        public string ShoppingCartId { get; set; }
         public string ProductID { get; set; }
         public string ProductName { get; set; }
         public int Price { get; set; }
