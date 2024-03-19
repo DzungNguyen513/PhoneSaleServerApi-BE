@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.FileProviders;
 using PhoneSaleAPI.Models;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -10,11 +11,11 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddCors(option => option.AddDefaultPolicy(policy =>
-        policy.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod()));
+        policy.WithOrigins("http://127.0.0.1:5500").AllowAnyHeader().AllowAnyMethod().AllowCredentials()));
 
 
-builder.Services.AddDbContext<PhoneManagementContext>(option => 
-        option.UseSqlServer(builder.Configuration.GetConnectionString("dbPhoneManagement")));
+builder.Services.AddDbContext<PhoneManagementContext>(options =>
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 
 var app = builder.Build();
@@ -34,5 +35,12 @@ app.UseHttpsRedirection();
 app.UseAuthorization();
 
 app.MapControllers();
+app.UseCors(options => options.WithOrigins("http://127.0.0.1:5500").AllowAnyMethod().AllowAnyHeader());
+app.UseStaticFiles(new StaticFileOptions
+{
+    FileProvider = new PhysicalFileProvider(
+            Path.Combine(Directory.GetCurrentDirectory(), "Assets", "Images")),
+    RequestPath = "/Assets/Images"
+});
 
 app.Run();
