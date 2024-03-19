@@ -30,10 +30,18 @@ public class LoginController : ControllerBase
         var hashedPassword = HashPassword(model.Password);
 
         var customer = await _context.Customers
-            .FirstOrDefaultAsync(c => c.Email == model.Email && c.Password == hashedPassword);
+            .FirstOrDefaultAsync(c => c.Email == model.Email && c.Password == hashedPassword && c.Status == 1);
 
         if (customer == null)
         {
+            var lockedCustomer = await _context.Customers
+                .AnyAsync(c => c.Email == model.Email && c.Status == 0);
+
+            if (lockedCustomer)
+            {
+                return BadRequest(new { success = false, message = "Tài khoản của bạn đã bị khóa" });
+            }
+
             return NotFound(new { success = false, message = "Sai email hoặc mật khẩu" });
         }
 
@@ -48,6 +56,7 @@ public class LoginController : ControllerBase
             return BitConverter.ToString(hashedBytes).Replace("-", "").ToLower();
         }
     }
+
 }
 
 

@@ -16,6 +16,7 @@ namespace PhoneSaleAPI.Models
         public string? Password { get; set; }
         public string? PhoneNumber { get; set; }
         public string? Address { get; set; }
+        public int? Status { get; set; }
 
         public virtual ShoppingCart? ShoppingCart { get; set; }
         public virtual ICollection<Bill> Bills { get; set; }
