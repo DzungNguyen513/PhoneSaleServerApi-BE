@@ -32,7 +32,7 @@ namespace PhoneSaleAPI.Controllers
                                  ShoppingCartId = cart.ShoppingCartId,
                                  ProductID = product.ProductId,
                                  ProductName = product.ProductName,
-                                 Price = (int)cartDetail.Price,
+                                 Price = (int)product.Price,
                                  Amount = (int)cartDetail.Amount,
                                  Img = product.Img
                              }).ToList();
@@ -66,6 +66,35 @@ namespace PhoneSaleAPI.Controllers
             return NoContent();
         }
 
+        [HttpPut("UpdateAmount")]
+        public async Task<IActionResult> UpdateProductAmount([FromBody] UpdateAmountRequest request)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            var cartDetail = await _context.ShoppingCartDetails.FirstOrDefaultAsync(cd => cd.ShoppingCartId == request.ShoppingCartId && cd.ProductId == request.ProductId);
+
+            if (cartDetail == null)
+            {
+                return NotFound(new { message = "Không tìm thấy sản phẩm trong giỏ hàng." });
+            }
+
+            cartDetail.Amount = request.NewAmount;
+            _context.Entry(cartDetail).State = EntityState.Modified;
+
+            try
+            {
+                await _context.SaveChangesAsync();
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                throw; 
+            }
+
+            return NoContent();
+        }
     }
 
 }
