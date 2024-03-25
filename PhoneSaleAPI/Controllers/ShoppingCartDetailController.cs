@@ -33,6 +33,8 @@ namespace PhoneSaleAPI.Controllers
                                  ProductID = product.ProductId,
                                  ProductName = product.ProductName,
                                  Price = (int)product.Price,
+                                 ColorName = product.ColorName,
+                                 StorageGB = (int)product.StorageGb,
                                  Amount = (int)cartDetail.Amount,
                                  Img = product.Img
                              }).ToList();
