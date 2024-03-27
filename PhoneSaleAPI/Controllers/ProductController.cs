@@ -191,5 +191,55 @@ namespace PhoneSaleAPI.Controllers
             }
         }
 
+        [HttpPost("CreateProductAdmin")]
+        public async Task<IActionResult> CreateProductAdmin([FromBody] AdminCreateProduct productDTO)
+        {
+            if (productDTO != null)
+            {
+                // Kiểm tra các trường bắt buộc (đã bỏ qua để giảm chiều dài code)
+
+                try
+                {
+                    // Tạo GUID mới
+                    var guid = Guid.NewGuid();
+
+                    // Sử dụng GUID để tạo mã sản phẩm mới
+                    var newProductId = $"PRD{guid.ToString().Substring(0, 6).ToUpper()}";
+
+
+                    var product = new Product
+                    {
+                        ProductId = newProductId,
+                        ProductName = productDTO.ProductName,
+                        StorageGb = productDTO.StorageGB,
+                        ColorName = productDTO.ColorName,
+                        Amount = productDTO.Amount,
+                        Price = productDTO.Price,
+                        CategoryId = productDTO.CategoryId,
+                        VendorId = productDTO.VendorId,
+                        Detail = productDTO.Detail,
+                        Img = productDTO.ImageFile,
+                        Status = productDTO.Status
+                    };
+
+                    _context.Products.Add(product);
+                    await _context.SaveChangesAsync();
+
+                    return Ok(new { product.ProductId, product.Img });
+                }
+                catch (Exception ex)
+                {
+                    // Xử lý nếu có lỗi trong quá trình lưu sản phẩm vào CSDL
+                    return StatusCode(500, $"Internal server error: {ex.InnerException?.Message}");
+                }
+            }
+            else
+            {
+                return BadRequest("Invalid product data.");
+            }
+        }
+
+
+
     }
 }
