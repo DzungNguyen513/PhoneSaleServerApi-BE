@@ -36,7 +36,7 @@ namespace PhoneSaleAPI.Controllers
                                  ColorName = product.ColorName,
                                  StorageGB = (int)product.StorageGb,
                                  Amount = (int)cartDetail.Amount,
-                                 Img = product.Img
+                                 //Img = product.Img
                              }).ToList();
 
             if (cartItems == null || cartItems.Count == 0)

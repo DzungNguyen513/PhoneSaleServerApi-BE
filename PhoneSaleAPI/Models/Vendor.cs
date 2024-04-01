@@ -15,6 +15,8 @@ namespace PhoneSaleAPI.Models
         public string? Address { get; set; }
         public string? PhoneNumber { get; set; }
         public int? Status { get; set; }
+        public DateTime? CreateAt { get; set; }
+        public DateTime? UpdateAt { get; set; }
 
         public virtual ICollection<Product> Products { get; set; }
     }

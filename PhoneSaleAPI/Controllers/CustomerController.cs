@@ -168,7 +168,7 @@ namespace PhoneSaleAPI.Controllers
 
             var shoppingCart = new ShoppingCart
             {
-                ShoppingCartId = $"GH{newCustomerId.Substring(3)}", 
+                ShoppingCartId = $"SPC{newCustomerId.Substring(3)}", 
                 CustomerId = newCustomerId,
                 TotalCart = 0,
                 Status = 1,

@@ -8,6 +8,7 @@ namespace PhoneSaleAPI.Models
         public Customer()
         {
             Bills = new HashSet<Bill>();
+            SystemNotificationReads = new HashSet<SystemNotificationRead>();
         }
 
         public string CustomerId { get; set; } = null!;
@@ -17,8 +18,12 @@ namespace PhoneSaleAPI.Models
         public string? PhoneNumber { get; set; }
         public string? Address { get; set; }
         public int? Status { get; set; }
+        public DateTime? LastLogin { get; set; }
+        public DateTime? CreateAt { get; set; }
+        public DateTime? UpdateAt { get; set; }
 
         public virtual ShoppingCart? ShoppingCart { get; set; }
         public virtual ICollection<Bill> Bills { get; set; }
+        public virtual ICollection<SystemNotificationRead> SystemNotificationReads { get; set; }
     }
 }

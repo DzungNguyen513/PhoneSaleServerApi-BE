@@ -12,6 +12,8 @@ namespace PhoneSaleAPI.Models
 
         public int StorageGb { get; set; }
         public int? StoragePrice { get; set; }
+        public DateTime? CreateAt { get; set; }
+        public DateTime? UpdateAt { get; set; }
 
         public virtual ICollection<Product> Products { get; set; }
     }
