@@ -29,7 +29,12 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseStaticFiles();
-
+app.UseStaticFiles(new StaticFileOptions
+{
+    FileProvider = new PhysicalFileProvider(
+            Path.Combine(Directory.GetCurrentDirectory(), "Assets", "Images")),
+    RequestPath = "/Assets/Images"
+});
 app.UseHttpsRedirection();
 
 app.UseAuthorization();

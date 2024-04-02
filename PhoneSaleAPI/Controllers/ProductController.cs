@@ -23,7 +23,7 @@ namespace PhoneSaleAPI.Controllers
         }
 
         // GET: api/Product
-        [HttpGet]
+        [HttpGet("GetProducts")]
         public async Task<ActionResult<IEnumerable<Product>>> GetProducts()
         {
           if (_context.Products == null)
@@ -34,7 +34,7 @@ namespace PhoneSaleAPI.Controllers
         }
 
         // GET: api/Product/5
-        [HttpGet("{id}")]
+        [HttpGet("{ProductId}")]
         public async Task<ActionResult<Product>> GetProduct(string id)
         {
           if (_context.Products == null)

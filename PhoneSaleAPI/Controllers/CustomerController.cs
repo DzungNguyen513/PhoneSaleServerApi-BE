@@ -159,7 +159,8 @@ namespace PhoneSaleAPI.Controllers
             {
                 CustomerId = newCustomerId,
                 Email = model.Email,
-                Password = hashedPassword, 
+                Password = hashedPassword,
+                Status = 1
             };
 
             _context.Customers.Add(customer);
