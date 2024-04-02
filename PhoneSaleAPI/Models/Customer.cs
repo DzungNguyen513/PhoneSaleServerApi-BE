@@ -8,6 +8,9 @@ namespace PhoneSaleAPI.Models
         public Customer()
         {
             Bills = new HashSet<Bill>();
+            ChatMessages = new HashSet<ChatMessage>();
+            ChatSessions = new HashSet<ChatSession>();
+            ProductReviews = new HashSet<ProductReview>();
             SystemNotificationReads = new HashSet<SystemNotificationRead>();
         }
 
@@ -24,6 +27,9 @@ namespace PhoneSaleAPI.Models
 
         public virtual ShoppingCart? ShoppingCart { get; set; }
         public virtual ICollection<Bill> Bills { get; set; }
+        public virtual ICollection<ChatMessage> ChatMessages { get; set; }
+        public virtual ICollection<ChatSession> ChatSessions { get; set; }
+        public virtual ICollection<ProductReview> ProductReviews { get; set; }
         public virtual ICollection<SystemNotificationRead> SystemNotificationReads { get; set; }
     }
 }

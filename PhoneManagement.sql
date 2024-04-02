@@ -75,6 +75,34 @@ create table ProductImage( -- Các hình ảnh của sản phẩm ProductID
 )
 go
 
+create table ProductReview( -- Đánh giá sản phẩm
+	ProductReviewID nvarchar(30) primary key,
+	Title nvarchar(100),
+	ProductID nvarchar(30),
+	CustomerID nvarchar(30) null,
+	Rating int,
+	Comment nvarchar(max),
+	CreateAt datetime default getdate(),
+	UpdateAt datetime,
+
+	constraint FK_ProductReview_ProductID foreign key (ProductID) references Product(ProductID),
+	constraint FK_ProductReview_CustomerID foreign key (CustomerID) references Customer(CustomerID)
+)
+go
+
+create table ReviewImage( -- Ảnh đánh giá sản phẩm
+	ReviewImageID nvarchar(30) primary key,
+	ProductReviewID nvarchar(30),
+	ImagePath nvarchar(255),
+	IsPrimary bit default 0,
+	CreateAt datetime default getdate(),
+	UpdateAt datetime,
+
+	constraint FK_ReviewImage_ProductReviewID foreign key (ProductReviewID) references ProductReview(ProductReviewID)
+)
+go
+
+
 create table Customer( -- Khách hàng
 	CustomerID nvarchar(30) primary key not null,
 	CustomerName nvarchar(30),
@@ -178,6 +206,35 @@ create table SystemNotificationRead ( -- Tài khoản đã đọc
     constraint FK_SystemNotificationRead_CustomerID foreign key(CustomerID) references Customer(CustomerID) 
 )
 go
+
+create table ChatSession( -- Phiên chat
+	SessionID nvarchar(30) primary key,
+	SessionName nvarchar(255) null,
+	CustomerID nvarchar(30),
+	Username nvarchar(30),
+	SentAt datetime default getdate(),
+	LastMessageAt datetime,
+	IsActive bit default 1
+
+	constraint FK_ChatSession_CustomerID foreign key (CustomerID) references Customer(CustomerID),
+	constraint FK_ChatSession_Username foreign key (Username) references Account(Username)
+)
+go
+
+create table ChatMessage( -- Hội thoại
+	MessageID nvarchar(30) primary key,
+	SessionID nvarchar(30),
+	SentByAccountId nvarchar(30),
+	SentByCustomerId nvarchar(30),
+	MessageText nvarchar(max),
+	SentAt datetime default getdate(),
+
+	constraint FK_ChatMessages_SessionID foreign key (SessionID) references ChatSession(SessionID),
+	constraint FK_ChatMessage_SentByAccountId foreign key (SentByAccountId) references Account(Username),
+	constraint FK_ChatMessage_SentByCustomerId foreign key (SentByCustomerId) references Customer(CustomerID)
+)
+go
+
 alter table Bill
 add Note nvarchar(max)
 go

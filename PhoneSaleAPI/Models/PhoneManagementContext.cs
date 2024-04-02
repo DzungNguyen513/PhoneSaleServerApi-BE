@@ -20,10 +20,14 @@ namespace PhoneSaleAPI.Models
         public virtual DbSet<Bill> Bills { get; set; } = null!;
         public virtual DbSet<BillDetail> BillDetails { get; set; } = null!;
         public virtual DbSet<Category> Categories { get; set; } = null!;
+        public virtual DbSet<ChatMessage> ChatMessages { get; set; } = null!;
+        public virtual DbSet<ChatSession> ChatSessions { get; set; } = null!;
         public virtual DbSet<Color> Colors { get; set; } = null!;
         public virtual DbSet<Customer> Customers { get; set; } = null!;
         public virtual DbSet<Product> Products { get; set; } = null!;
         public virtual DbSet<ProductImage> ProductImages { get; set; } = null!;
+        public virtual DbSet<ProductReview> ProductReviews { get; set; } = null!;
+        public virtual DbSet<ReviewImage> ReviewImages { get; set; } = null!;
         public virtual DbSet<ShoppingCart> ShoppingCarts { get; set; } = null!;
         public virtual DbSet<ShoppingCartDetail> ShoppingCartDetails { get; set; } = null!;
         public virtual DbSet<Storage> Storages { get; set; } = null!;
@@ -138,6 +142,83 @@ namespace PhoneSaleAPI.Models
                     .HasDefaultValueSql("(getdate())");
 
                 entity.Property(e => e.UpdateAt).HasColumnType("datetime");
+            });
+
+            modelBuilder.Entity<ChatMessage>(entity =>
+            {
+                entity.HasKey(e => e.MessageId)
+                    .HasName("PK__ChatMess__C87C037C9D6020B5");
+
+                entity.ToTable("ChatMessage");
+
+                entity.Property(e => e.MessageId)
+                    .HasMaxLength(30)
+                    .HasColumnName("MessageID");
+
+                entity.Property(e => e.SentAt)
+                    .HasColumnType("datetime")
+                    .HasDefaultValueSql("(getdate())");
+
+                entity.Property(e => e.SentByAccountId).HasMaxLength(30);
+
+                entity.Property(e => e.SentByCustomerId).HasMaxLength(30);
+
+                entity.Property(e => e.SessionId)
+                    .HasMaxLength(30)
+                    .HasColumnName("SessionID");
+
+                entity.HasOne(d => d.SentByAccount)
+                    .WithMany(p => p.ChatMessages)
+                    .HasForeignKey(d => d.SentByAccountId)
+                    .HasConstraintName("FK_ChatMessage_SentByAccountId");
+
+                entity.HasOne(d => d.SentByCustomer)
+                    .WithMany(p => p.ChatMessages)
+                    .HasForeignKey(d => d.SentByCustomerId)
+                    .HasConstraintName("FK_ChatMessage_SentByCustomerId");
+
+                entity.HasOne(d => d.Session)
+                    .WithMany(p => p.ChatMessages)
+                    .HasForeignKey(d => d.SessionId)
+                    .HasConstraintName("FK_ChatMessages_SessionID");
+            });
+
+            modelBuilder.Entity<ChatSession>(entity =>
+            {
+                entity.HasKey(e => e.SessionId)
+                    .HasName("PK__ChatSess__C9F49270B95A4953");
+
+                entity.ToTable("ChatSession");
+
+                entity.Property(e => e.SessionId)
+                    .HasMaxLength(30)
+                    .HasColumnName("SessionID");
+
+                entity.Property(e => e.CustomerId)
+                    .HasMaxLength(30)
+                    .HasColumnName("CustomerID");
+
+                entity.Property(e => e.IsActive).HasDefaultValueSql("((1))");
+
+                entity.Property(e => e.LastMessageAt).HasColumnType("datetime");
+
+                entity.Property(e => e.SentAt)
+                    .HasColumnType("datetime")
+                    .HasDefaultValueSql("(getdate())");
+
+                entity.Property(e => e.SessionName).HasMaxLength(255);
+
+                entity.Property(e => e.Username).HasMaxLength(30);
+
+                entity.HasOne(d => d.Customer)
+                    .WithMany(p => p.ChatSessions)
+                    .HasForeignKey(d => d.CustomerId)
+                    .HasConstraintName("FK_ChatSession_CustomerID");
+
+                entity.HasOne(d => d.UsernameNavigation)
+                    .WithMany(p => p.ChatSessions)
+                    .HasForeignKey(d => d.Username)
+                    .HasConstraintName("FK_ChatSession_Username");
             });
 
             modelBuilder.Entity<Color>(entity =>
@@ -261,6 +342,69 @@ namespace PhoneSaleAPI.Models
                     .WithMany(p => p.ProductImages)
                     .HasForeignKey(d => d.ProductId)
                     .HasConstraintName("FK_ProductImage_ProductID");
+            });
+
+            modelBuilder.Entity<ProductReview>(entity =>
+            {
+                entity.ToTable("ProductReview");
+
+                entity.Property(e => e.ProductReviewId)
+                    .HasMaxLength(30)
+                    .HasColumnName("ProductReviewID");
+
+                entity.Property(e => e.CreateAt)
+                    .HasColumnType("datetime")
+                    .HasDefaultValueSql("(getdate())");
+
+                entity.Property(e => e.CustomerId)
+                    .HasMaxLength(30)
+                    .HasColumnName("CustomerID");
+
+                entity.Property(e => e.ProductId)
+                    .HasMaxLength(30)
+                    .HasColumnName("ProductID");
+
+                entity.Property(e => e.Title).HasMaxLength(100);
+
+                entity.Property(e => e.UpdateAt).HasColumnType("datetime");
+
+                entity.HasOne(d => d.Customer)
+                    .WithMany(p => p.ProductReviews)
+                    .HasForeignKey(d => d.CustomerId)
+                    .HasConstraintName("FK_ProductReview_CustomerID");
+
+                entity.HasOne(d => d.Product)
+                    .WithMany(p => p.ProductReviews)
+                    .HasForeignKey(d => d.ProductId)
+                    .HasConstraintName("FK_ProductReview_ProductID");
+            });
+
+            modelBuilder.Entity<ReviewImage>(entity =>
+            {
+                entity.ToTable("ReviewImage");
+
+                entity.Property(e => e.ReviewImageId)
+                    .HasMaxLength(30)
+                    .HasColumnName("ReviewImageID");
+
+                entity.Property(e => e.CreateAt)
+                    .HasColumnType("datetime")
+                    .HasDefaultValueSql("(getdate())");
+
+                entity.Property(e => e.ImagePath).HasMaxLength(255);
+
+                entity.Property(e => e.IsPrimary).HasDefaultValueSql("((0))");
+
+                entity.Property(e => e.ProductReviewId)
+                    .HasMaxLength(30)
+                    .HasColumnName("ProductReviewID");
+
+                entity.Property(e => e.UpdateAt).HasColumnType("datetime");
+
+                entity.HasOne(d => d.ProductReview)
+                    .WithMany(p => p.ReviewImages)
+                    .HasForeignKey(d => d.ProductReviewId)
+                    .HasConstraintName("FK_ReviewImage_ProductReviewID");
             });
 
             modelBuilder.Entity<ShoppingCart>(entity =>
