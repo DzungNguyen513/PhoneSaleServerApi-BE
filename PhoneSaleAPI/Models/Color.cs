@@ -7,6 +7,7 @@ namespace PhoneSaleAPI.Models
     {
         public Color()
         {
+            ProductImages = new HashSet<ProductImage>();
             Products = new HashSet<Product>();
         }
 
@@ -16,6 +17,7 @@ namespace PhoneSaleAPI.Models
         public DateTime? CreateAt { get; set; }
         public DateTime? UpdateAt { get; set; }
 
+        public virtual ICollection<ProductImage> ProductImages { get; set; }
         public virtual ICollection<Product> Products { get; set; }
     }
 }
