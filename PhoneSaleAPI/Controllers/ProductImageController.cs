@@ -61,6 +61,7 @@ namespace PhoneSaleAPI.Controllers
                 {
                     ProductImageId = newProductImageId,
                     ProductId = productId,
+                    ColorName = productImageDTO.ColorName,
                     ImagePath = fileName,
                     IsPrimary = productImageDTO.IsPrimary
                 };
