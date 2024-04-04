@@ -63,15 +63,33 @@ create table Product( -- Sản phẩm
 )
 go
 
+drop table ProductImage
+go
 create table ProductImage( -- Các hình ảnh của sản phẩm ProductID
 	ProductImageID nvarchar(100) primary key,
 	ProductID nvarchar(30),
+	ColorName nvarchar(50) NULL,
 	ImagePath nvarchar(100),
 	IsPrimary bit, -- Đánh dấu hình ảnh xuất hiện đầu tiên
 	CreateAt datetime default getdate(),
 	UpdateAt datetime,
 
-	constraint FK_ProductImage_ProductID foreign key (ProductID) references Product(ProductID)
+	constraint FK_ProductImage_ProductID foreign key (ProductID) references Product(ProductID),
+	constraint FK_ProductImage_ColorName foreign key (ColorName) references Color(ColorName) 
+)
+go
+
+create table Customer( -- Khách hàng
+	CustomerID nvarchar(30) primary key not null,
+	CustomerName nvarchar(30),
+	Email nvarchar(50) UNIQUE, -- Username là Email
+	Password nvarchar(100),
+	PhoneNumber nvarchar(20),
+	Address nvarchar(50),
+	Status int, -- 0: Đã khóa, 1: Đã kích hoạt
+	LastLogin datetime,
+	CreateAt datetime default getdate(),
+	UpdateAt datetime,
 )
 go
 
@@ -102,20 +120,6 @@ create table ReviewImage( -- Ảnh đánh giá sản phẩm
 )
 go
 
-
-create table Customer( -- Khách hàng
-	CustomerID nvarchar(30) primary key not null,
-	CustomerName nvarchar(30),
-	Email nvarchar(50) UNIQUE, -- Username là Email
-	Password nvarchar(100),
-	PhoneNumber nvarchar(20),
-	Address nvarchar(50),
-	Status int, -- 0: Đã khóa, 1: Đã kích hoạt
-	LastLogin datetime,
-	CreateAt datetime default getdate(),
-	UpdateAt datetime,
-)
-go
 
 create table Account( -- Tài khoản hệ thống
 	Username nvarchar(30) primary key,

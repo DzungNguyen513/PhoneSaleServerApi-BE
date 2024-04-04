@@ -326,6 +326,8 @@ namespace PhoneSaleAPI.Models
                     .HasMaxLength(100)
                     .HasColumnName("ProductImageID");
 
+                entity.Property(e => e.ColorName).HasMaxLength(50);
+
                 entity.Property(e => e.CreateAt)
                     .HasColumnType("datetime")
                     .HasDefaultValueSql("(getdate())");
@@ -337,6 +339,11 @@ namespace PhoneSaleAPI.Models
                     .HasColumnName("ProductID");
 
                 entity.Property(e => e.UpdateAt).HasColumnType("datetime");
+
+                entity.HasOne(d => d.ColorNameNavigation)
+                    .WithMany(p => p.ProductImages)
+                    .HasForeignKey(d => d.ColorName)
+                    .HasConstraintName("FK_ProductImage_ColorName");
 
                 entity.HasOne(d => d.Product)
                     .WithMany(p => p.ProductImages)
