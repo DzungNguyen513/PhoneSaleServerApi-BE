@@ -20,7 +20,7 @@ namespace PhoneSaleAPI.Controllers
         {
             _context = context;
         }
-        [HttpPost("{productId}/images")]
+        [HttpPost("{productId}")]
         public async Task<IActionResult> AddProductImage(string productId, [FromForm] ProductImageDTO productImageDTO)
         {
             if (productImageDTO.ImageFile != null)
