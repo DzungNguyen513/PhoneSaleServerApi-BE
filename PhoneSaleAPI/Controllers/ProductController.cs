@@ -34,7 +34,7 @@ namespace PhoneSaleAPI.Controllers
         }
 
         // GET: api/Product/5
-        [HttpGet("{ProductId}")]
+        [HttpGet("GetProduct/{ProductId}")]
         public async Task<ActionResult<Product>> GetProduct(string id)
         {
           if (_context.Products == null)

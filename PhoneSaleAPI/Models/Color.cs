@@ -10,7 +10,6 @@ namespace PhoneSaleAPI.Models
             ProductImages = new HashSet<ProductImage>();
             Products = new HashSet<Product>();
         }
-
         public string ColorName { get; set; } = null!;
         public string? ColorImage { get; set; }
         public int? ColorPrice { get; set; }
