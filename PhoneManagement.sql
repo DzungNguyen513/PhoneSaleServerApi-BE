@@ -60,10 +60,11 @@ create table Product( -- Sản phẩm
 )
 go
 create table ProductDetail (
-	ProductDetailID nvarchar(30) primary key,
-	ProductId nvarchar(30),
+	ProductDetailID nvarchar(30) primary key not null,
+	ProductID nvarchar(30) not null,
 	StorageGB int,
 	ColorName nvarchar(50),
+	constraint FK_ProductDeyail_ProductID foreign key (ProductID) references Product(ProductID),
 	constraint FK_ProductDetail_StorageGB foreign key(StorageGB) references Storage(StorageGB),
 	constraint FK_ProductDetail_ColorName foreign key(ColorName) references Color(ColorName),
 
