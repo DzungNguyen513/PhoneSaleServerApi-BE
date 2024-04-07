@@ -40,7 +40,7 @@ namespace PhoneSaleAPI.Helpers
               return NotFound();
           }
             var shoppingCartDetail = await _context.ShoppingCartDetails.FindAsync(id);
-
+            
             if (shoppingCartDetail == null)
             {
                 return NotFound();
@@ -58,7 +58,7 @@ namespace PhoneSaleAPI.Helpers
             {
                 return BadRequest();
             }
-
+             
             _context.Entry(shoppingCartDetail).State = EntityState.Modified;
 
             try
@@ -133,5 +133,7 @@ namespace PhoneSaleAPI.Helpers
         {
             return (_context.ShoppingCartDetails?.Any(e => e.ShoppingCartId == id)).GetValueOrDefault();
         }
+        
+        
     }
 }
