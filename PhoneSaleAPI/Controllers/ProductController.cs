@@ -34,14 +34,14 @@ namespace PhoneSaleAPI.Controllers
         }
 
         // GET: api/Product/5
-        [HttpGet("{ProductId}")]
-        public async Task<ActionResult<Product>> GetProduct(string id)
+        [HttpGet("GetProduct/{productId}")]
+        public async Task<ActionResult<Product>> GetProduct(string ProductId)
         {
           if (_context.Products == null)
           {
               return NotFound();
           }
-            var product = await _context.Products.FindAsync(id);
+            var product = await _context.Products.FindAsync(ProductId);
 
             if (product == null)
             {
@@ -188,5 +188,21 @@ namespace PhoneSaleAPI.Controllers
 
             return Ok(productImages);
         }
+
+        [HttpGet("GetProductDetails/{productId}")]
+        public async Task<ActionResult<IEnumerable<ProductImage>>> GetProductDetails(string productId)
+        {
+            var productDetail = await _context.ProductDetails
+                .Where(pi => pi.ProductId == productId)
+                .ToListAsync();
+
+            if (productDetail == null || productDetail.Count == 0)
+            {
+                return NotFound("Không tìm thấy  sản phẩm có id là " + productId);
+            }
+
+            return Ok(productDetail);
+        }
+
     }
 }
