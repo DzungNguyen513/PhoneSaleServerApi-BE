@@ -44,9 +44,6 @@ go
 create table Product( -- Sản phẩm
 	ProductID nvarchar(30) primary key not null,
 	ProductName nvarchar(30),
-	StorageGB int,
-	ColorName nvarchar(50),
-	Amount int,
 	Price int,
 	Discount int, -- Giảm giá
 	CategoryID nvarchar(30),
@@ -56,15 +53,26 @@ create table Product( -- Sản phẩm
 	CreateAt datetime default getdate(),
 	UpdateAt datetime,
 
-	constraint FK_Product_StorageGB foreign key(StorageGB) references Storage(StorageGB),
-	constraint FK_Product_ColorName foreign key(ColorName) references Color(ColorName),
 	constraint FK_Product_CategoryID foreign key(CategoryID) references Category(CategoryID),
     constraint FK_Product_VendorID foreign key(VendorID) references Vendor(VendorID),
 )
 go
 
-drop table ProductImage
+create table ProductDetail (
+	ProductID nvarchar(30),
+	ColorName nvarchar(50),
+	StorageGB int,
+	Amount int,
+	CreateAt datetime default getdate(),
+	UpdateAt datetime 
+
+	primary key(ProductID, ColorName, StorageGB),
+	constraint FK_ProductDetail_ProductID foreign key (ProductID) references Product(ProductID),
+	constraint FK_ProductDetail_StorageGB foreign key(StorageGB) references Storage(StorageGB),
+	constraint FK_ProductDetail_ColorName foreign key(ColorName) references Color(ColorName),
+)
 go
+
 create table ProductImage( -- Các hình ảnh của sản phẩm ProductID
 	ProductImageID nvarchar(100) primary key,
 	ProductID nvarchar(30),
@@ -153,7 +161,6 @@ create table BillDetail( -- Chi tiết đơn hàng
 	Total int, --Thành tiền
 	CreateAt datetime default getdate(),
 	UpdateAt datetime,
-
 	constraint PK_BillDetail primary key clustered -- Cặp khóa chính 
 	(
 		BillID ASC,
@@ -270,6 +277,10 @@ INSERT [dbo].[Color] ([ColorName], [ColorPrice]) VALUES (N'Xanh', 10)
 INSERT [dbo].[Color] ([ColorName], [ColorPrice]) VALUES (N'Đỏ', 12)
 INSERT [dbo].[Color] ([ColorName], [ColorPrice]) VALUES (N'Tím', 14)
 INSERT [dbo].[Color] ([ColorName], [ColorPrice]) VALUES (N'Vàng', 16)
+INSERT [dbo].[Color] ([ColorName], [ColorPrice]) VALUES (N'Trắng', 12)
+INSERT [dbo].[Color] ([ColorName], [ColorPrice]) VALUES (N'Đen', 12)
+INSERT [dbo].[Color] ([ColorName], [ColorPrice]) VALUES (N'Vàng đồng', 14)
+INSERT [dbo].[Color] ([ColorName], [ColorPrice]) VALUES (N'Titanium', 18)
 
 INSERT [dbo].[Storage] ([StorageGB], [StoragePrice]) VALUES (64, 5)
 INSERT [dbo].[Storage] ([StorageGB], [StoragePrice]) VALUES (128, 10)
@@ -352,3 +363,24 @@ INSERT [dbo].[ProductImage] ([ProductImageID], [ProductID], [ImagePath], [IsPrim
 INSERT [dbo].[ProductImage] ([ProductImageID], [ProductID], [ImagePath], [IsPrimary], [CreateAt], [UpdateAt]) VALUES (N'PRDIMG029', N'PRD006', N'Iphone_15prm_03.jpg', 0, CAST(N'2024-04-02T01:09:12.153' AS DateTime), NULL)
 INSERT [dbo].[ProductImage] ([ProductImageID], [ProductID], [ImagePath], [IsPrimary], [CreateAt], [UpdateAt]) VALUES (N'PRDIMG030', N'PRD006', N'Iphone_15prm_04.jpg', 0, CAST(N'2024-04-02T01:09:17.453' AS DateTime), NULL)
 GO
+
+INSERT [dbo].[ProductDetail] ([ProductId], [StorageGB], [ColorName], [Amount]) VALUES (N'PRD001', 64, N'Đen', 5)
+INSERT [dbo].[ProductDetail] ([ProductId], [StorageGB], [ColorName], [Amount]) VALUES (N'PRD001', 128, N'Đen',6)
+INSERT [dbo].[ProductDetail] ([ProductId], [StorageGB], [ColorName], [Amount]) VALUES (N'PRD001', 64, N'Trắng',8)
+INSERT [dbo].[ProductDetail] ([ProductId], [StorageGB], [ColorName], [Amount]) VALUES (N'PRD001', 256, N'Trắng',10)
+INSERT [dbo].[ProductDetail] ([ProductId], [StorageGB], [ColorName], [Amount]) VALUES (N'PRD002', 128, N'Trắng',3)
+INSERT [dbo].[ProductDetail] ([ProductId], [StorageGB], [ColorName], [Amount]) VALUES (N'PRD002', 256, N'Xanh',4)
+INSERT [dbo].[ProductDetail] ([ProductId], [StorageGB], [ColorName], [Amount]) VALUES (N'PRD002', 512, N'Vàng đồng',7)
+INSERT [dbo].[ProductDetail] ([ProductId], [StorageGB], [ColorName], [Amount]) VALUES (N'PRD003', 128, N'Xanh',9)
+INSERT [dbo].[ProductDetail] ([ProductId], [StorageGB], [ColorName], [Amount]) VALUES (N'PRD003', 256, N'Vàng đồng',11)
+INSERT [dbo].[ProductDetail] ([ProductId], [StorageGB], [ColorName], [Amount]) VALUES (N'PRD003', 512, N'Đen',4)
+INSERT [dbo].[ProductDetail] ([ProductId], [StorageGB], [ColorName], [Amount]) VALUES (N'PRD004', 128, N'Trắng',5)
+INSERT [dbo].[ProductDetail] ([ProductId], [StorageGB], [ColorName], [Amount]) VALUES (N'PRD004', 512, N'Vàng đồng',7)
+INSERT [dbo].[ProductDetail] ([ProductId], [StorageGB], [ColorName], [Amount]) VALUES (N'PRD004', 256, N'Tím',8)
+INSERT [dbo].[ProductDetail] ([ProductId], [StorageGB], [ColorName], [Amount]) VALUES (N'PRD005', 128, N'Vàng',4)
+INSERT [dbo].[ProductDetail] ([ProductId], [StorageGB], [ColorName], [Amount]) VALUES (N'PRD005', 256, N'Đen',5)
+INSERT [dbo].[ProductDetail] ([ProductId], [StorageGB], [ColorName], [Amount]) VALUES (N'PRD006', 256, N'Titanium',2)
+INSERT [dbo].[ProductDetail] ([ProductId], [StorageGB], [ColorName], [Amount]) VALUES (N'PRD006', 512, N'Tím',3)
+GO																   
+
+

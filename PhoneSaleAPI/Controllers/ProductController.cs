@@ -147,9 +147,6 @@ namespace PhoneSaleAPI.Controllers
             {
                 ProductId = newProductId,
                 ProductName = productDTO.ProductName,
-                StorageGb = productDTO.StorageGB,
-                ColorName = productDTO.ColorName,
-                Amount = productDTO.Amount,
                 Price = productDTO.Price,
                 CategoryId = productDTO.CategoryId,
                 VendorId = productDTO.VendorId,
@@ -161,6 +158,35 @@ namespace PhoneSaleAPI.Controllers
             await _context.SaveChangesAsync();
 
             return Ok(new { product.ProductId });
+        }
+
+        [HttpGet("GetProductDetails/{productId}")]
+        public async Task<ActionResult<IEnumerable<ProductImage>>> GetProductDetails(string productId)
+        {
+            var productDetail = await _context.ProductDetails
+                .Where(pi => pi.ProductId == productId)
+                .ToListAsync();
+
+            if (productDetail == null || productDetail.Count == 0)
+            {
+                return NotFound("Không tìm thấy  sản phẩm có id là " + productId);
+            }
+
+            return Ok(productDetail);
+        }
+        [HttpGet("GetProductImages/{productId}")]
+        public async Task<ActionResult<IEnumerable<ProductImage>>> GetProductImages(string productId)
+        {
+            var productImages = await _context.ProductImages
+                .Where(pi => pi.ProductId == productId)
+                .ToListAsync();
+
+            if (productImages == null || productImages.Count == 0)
+            {
+                return NotFound("Không tìm thấy ảnh cho sản phẩm có id là " + productId);
+            }
+
+            return Ok(productImages);
         }
     }
 }

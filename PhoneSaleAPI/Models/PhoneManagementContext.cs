@@ -25,6 +25,7 @@ namespace PhoneSaleAPI.Models
         public virtual DbSet<Color> Colors { get; set; } = null!;
         public virtual DbSet<Customer> Customers { get; set; } = null!;
         public virtual DbSet<Product> Products { get; set; } = null!;
+        public virtual DbSet<ProductDetail> ProductDetails { get; set; } = null!;
         public virtual DbSet<ProductImage> ProductImages { get; set; } = null!;
         public virtual DbSet<ProductReview> ProductReviews { get; set; } = null!;
         public virtual DbSet<ReviewImage> ReviewImages { get; set; } = null!;
@@ -281,15 +282,11 @@ namespace PhoneSaleAPI.Models
                     .HasMaxLength(30)
                     .HasColumnName("CategoryID");
 
-                entity.Property(e => e.ColorName).HasMaxLength(50);
-
                 entity.Property(e => e.CreateAt)
                     .HasColumnType("datetime")
                     .HasDefaultValueSql("(getdate())");
 
                 entity.Property(e => e.ProductName).HasMaxLength(30);
-
-                entity.Property(e => e.StorageGb).HasColumnName("StorageGB");
 
                 entity.Property(e => e.UpdateAt).HasColumnType("datetime");
 
@@ -302,20 +299,44 @@ namespace PhoneSaleAPI.Models
                     .HasForeignKey(d => d.CategoryId)
                     .HasConstraintName("FK_Product_CategoryID");
 
-                entity.HasOne(d => d.ColorNameNavigation)
-                    .WithMany(p => p.Products)
-                    .HasForeignKey(d => d.ColorName)
-                    .HasConstraintName("FK_Product_ColorName");
-
-                entity.HasOne(d => d.StorageGbNavigation)
-                    .WithMany(p => p.Products)
-                    .HasForeignKey(d => d.StorageGb)
-                    .HasConstraintName("FK_Product_StorageGB");
-
                 entity.HasOne(d => d.Vendor)
                     .WithMany(p => p.Products)
                     .HasForeignKey(d => d.VendorId)
                     .HasConstraintName("FK_Product_VendorID");
+            });
+
+            modelBuilder.Entity<ProductDetail>(entity =>
+            {
+                entity.HasKey(e => new { e.ProductId, e.ColorName, e.StorageGb })
+                    .HasName("PK__ProductD__7EF74724DCC1207A");
+
+                entity.ToTable("ProductDetail");
+
+                entity.Property(e => e.ProductId)
+                    .HasMaxLength(30)
+                    .HasColumnName("ProductID");
+
+                entity.Property(e => e.ColorName).HasMaxLength(50);
+
+                entity.Property(e => e.StorageGb).HasColumnName("StorageGB");
+
+                entity.Property(e => e.CreateAt)
+                    .HasColumnType("datetime")
+                    .HasDefaultValueSql("(getdate())");
+
+                entity.Property(e => e.UpdateAt).HasColumnType("datetime");
+
+                entity.HasOne(d => d.ColorNameNavigation)
+                    .WithMany(p => p.ProductDetails)
+                    .HasForeignKey(d => d.ColorName)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_ProductDetail_ColorName");
+
+                entity.HasOne(d => d.StorageGbNavigation)
+                    .WithMany(p => p.ProductDetails)
+                    .HasForeignKey(d => d.StorageGb)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_ProductDetail_StorageGB");
             });
 
             modelBuilder.Entity<ProductImage>(entity =>

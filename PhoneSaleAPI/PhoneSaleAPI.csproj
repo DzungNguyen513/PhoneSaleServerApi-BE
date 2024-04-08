@@ -4,6 +4,7 @@
     <TargetFramework>net6.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
+    <UserSecretsId>7ac777a7-bba9-4344-80f0-5a55394d7b2d</UserSecretsId>
   </PropertyGroup>
 
   <ItemGroup>
@@ -28,6 +29,10 @@
 
   <ItemGroup>
     <Folder Include="Assets\Images\" />
+    <Folder Include="Assets\Images\PRD003\" />
+    <Folder Include="Assets\Images\PRD004\" />
+    <Folder Include="Assets\Images\PRD005\" />
+    <Folder Include="Assets\Images\PRD006\" />
     <Folder Include="Models\" />
   </ItemGroup>
 
