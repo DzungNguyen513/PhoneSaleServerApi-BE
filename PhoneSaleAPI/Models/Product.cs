@@ -8,6 +8,7 @@ namespace PhoneSaleAPI.Models
         public Product()
         {
             BillDetails = new HashSet<BillDetail>();
+            ProductDetails = new HashSet<ProductDetail>();
             ProductImages = new HashSet<ProductImage>();
             ProductReviews = new HashSet<ProductReview>();
             ShoppingCartDetails = new HashSet<ShoppingCartDetail>();
@@ -27,6 +28,7 @@ namespace PhoneSaleAPI.Models
         public virtual Category? Category { get; set; }
         public virtual Vendor? Vendor { get; set; }
         public virtual ICollection<BillDetail> BillDetails { get; set; }
+        public virtual ICollection<ProductDetail> ProductDetails { get; set; }
         public virtual ICollection<ProductImage> ProductImages { get; set; }
         public virtual ICollection<ProductReview> ProductReviews { get; set; }
         public virtual ICollection<ShoppingCartDetail> ShoppingCartDetails { get; set; }

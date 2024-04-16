@@ -13,6 +13,7 @@ namespace PhoneSaleAPI.Models
         public DateTime? UpdateAt { get; set; }
 
         public virtual Color ColorNameNavigation { get; set; } = null!;
+        public virtual Product Product { get; set; } = null!;
         public virtual Storage StorageGbNavigation { get; set; } = null!;
     }
 }

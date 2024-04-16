@@ -15,9 +15,9 @@ namespace PhoneSaleAPI.Models
         public DateTime? DateBill { get; set; }
         public string? DeliveryAddress { get; set; }
         public int? Status { get; set; }
+        public string? Note { get; set; }
         public int? TotalBill { get; set; }
         public DateTime? UpdateAt { get; set; }
-        public string? Note { get; set; }
 
         public virtual Customer? Customer { get; set; }
         public virtual ICollection<BillDetail> BillDetails { get; set; }
