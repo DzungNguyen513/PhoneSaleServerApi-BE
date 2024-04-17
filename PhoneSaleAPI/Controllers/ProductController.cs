@@ -147,7 +147,6 @@ namespace PhoneSaleAPI.Controllers
             {
                 ProductId = newProductId,
                 ProductName = productDTO.ProductName,
-                Amount = productDTO.Amount,
                 Price = productDTO.Price,
                 CategoryId = productDTO.CategoryId,
                 VendorId = productDTO.VendorId,
@@ -160,7 +159,6 @@ namespace PhoneSaleAPI.Controllers
 
             return Ok(new { product.ProductId });
         }
-
         [HttpGet("GetProductImages/{productId}")]
         public async Task<ActionResult<IEnumerable<ProductImage>>> GetProductImages(string productId)
         {

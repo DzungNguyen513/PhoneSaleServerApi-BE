@@ -20,6 +20,7 @@ namespace PhoneSaleAPI.Models
         public string? Password { get; set; }
         public string? PhoneNumber { get; set; }
         public string? Address { get; set; }
+        public bool? Gender { get; set; }
         public int? Status { get; set; }
         public DateTime? LastLogin { get; set; }
         public DateTime? CreateAt { get; set; }

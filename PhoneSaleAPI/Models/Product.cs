@@ -16,7 +16,6 @@ namespace PhoneSaleAPI.Models
 
         public string ProductId { get; set; } = null!;
         public string? ProductName { get; set; }
-        public int? Amount { get; set; }
         public int? Price { get; set; }
         public int? Discount { get; set; }
         public string? CategoryId { get; set; }

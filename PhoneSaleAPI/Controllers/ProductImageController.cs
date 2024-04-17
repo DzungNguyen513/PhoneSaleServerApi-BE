@@ -76,8 +76,5 @@ namespace PhoneSaleAPI.Controllers
                 return BadRequest("Không tìm thấy hình ảnh để tải lên.");
             }
         }
-
-
-
     }
 }
