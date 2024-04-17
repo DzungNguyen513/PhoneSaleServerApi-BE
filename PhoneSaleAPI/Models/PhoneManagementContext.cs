@@ -51,7 +51,7 @@ namespace PhoneSaleAPI.Models
             {
                 entity.ToTable("Account");
 
-                entity.HasIndex(e => e.Username, "UQ__Account__536C85E4700FEE42")
+                entity.HasIndex(e => e.Username, "UQ__Account__536C85E48DE8D5F2")
                     .IsUnique();
 
                 entity.Property(e => e.AccountId)
@@ -85,11 +85,13 @@ namespace PhoneSaleAPI.Models
                     .HasMaxLength(30)
                     .HasColumnName("CustomerID");
 
+                entity.Property(e => e.CustomerName).HasMaxLength(50);
+
+                entity.Property(e => e.CustomerPhone).HasMaxLength(20);
+
                 entity.Property(e => e.DateBill)
                     .HasColumnType("datetime")
                     .HasDefaultValueSql("(getdate())");
-
-                entity.Property(e => e.DeliveryAddress).HasMaxLength(100);
 
                 entity.Property(e => e.UpdateAt)
                     .HasColumnType("datetime")
@@ -176,7 +178,7 @@ namespace PhoneSaleAPI.Models
             modelBuilder.Entity<ChatMessage>(entity =>
             {
                 entity.HasKey(e => e.MessageId)
-                    .HasName("PK__ChatMess__C87C037C0C8B6BC3");
+                    .HasName("PK__ChatMess__C87C037C35A860B2");
 
                 entity.ToTable("ChatMessage");
 
@@ -219,7 +221,7 @@ namespace PhoneSaleAPI.Models
             modelBuilder.Entity<ChatSession>(entity =>
             {
                 entity.HasKey(e => e.SessionId)
-                    .HasName("PK__ChatSess__C9F492702D54A982");
+                    .HasName("PK__ChatSess__C9F49270EE7DB725");
 
                 entity.ToTable("ChatSession");
 
@@ -259,7 +261,7 @@ namespace PhoneSaleAPI.Models
             modelBuilder.Entity<Color>(entity =>
             {
                 entity.HasKey(e => e.ColorName)
-                    .HasName("PK__Color__C71A5A7A8BBAF31F");
+                    .HasName("PK__Color__C71A5A7AA3D36897");
 
                 entity.ToTable("Color");
 
@@ -280,14 +282,12 @@ namespace PhoneSaleAPI.Models
             {
                 entity.ToTable("Customer");
 
-                entity.HasIndex(e => e.Email, "UQ__Customer__A9D10534E47D9B8A")
+                entity.HasIndex(e => e.Email, "UQ__Customer__A9D10534A925B925")
                     .IsUnique();
 
                 entity.Property(e => e.CustomerId)
                     .HasMaxLength(30)
                     .HasColumnName("CustomerID");
-
-                entity.Property(e => e.Address).HasMaxLength(50);
 
                 entity.Property(e => e.CreateAt)
                     .HasColumnType("datetime")
@@ -492,7 +492,7 @@ namespace PhoneSaleAPI.Models
             {
                 entity.ToTable("ShoppingCart");
 
-                entity.HasIndex(e => e.CustomerId, "UQ__Shopping__A4AE64B90763633B")
+                entity.HasIndex(e => e.CustomerId, "UQ__Shopping__A4AE64B971324A2C")
                     .IsUnique();
 
                 entity.Property(e => e.ShoppingCartId)
@@ -572,7 +572,7 @@ namespace PhoneSaleAPI.Models
             modelBuilder.Entity<Storage>(entity =>
             {
                 entity.HasKey(e => e.StorageGb)
-                    .HasName("PK__Storage__8A246E77C013659B");
+                    .HasName("PK__Storage__8A246E77BE58073A");
 
                 entity.ToTable("Storage");
 
@@ -592,7 +592,7 @@ namespace PhoneSaleAPI.Models
             modelBuilder.Entity<SystemNotification>(entity =>
             {
                 entity.HasKey(e => e.NotificationId)
-                    .HasName("PK__SystemNo__20CF2E32335F433D");
+                    .HasName("PK__SystemNo__20CF2E32156D7A45");
 
                 entity.ToTable("SystemNotification");
 
@@ -614,7 +614,7 @@ namespace PhoneSaleAPI.Models
             modelBuilder.Entity<SystemNotificationRead>(entity =>
             {
                 entity.HasKey(e => e.ReadId)
-                    .HasName("PK__SystemNo__1FABC84C0F9D72F3");
+                    .HasName("PK__SystemNo__1FABC84C6A998BCD");
 
                 entity.ToTable("SystemNotificationRead");
 
