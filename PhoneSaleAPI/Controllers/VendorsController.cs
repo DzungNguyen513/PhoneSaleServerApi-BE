@@ -11,56 +11,55 @@ namespace PhoneSaleAPI.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class CategoriesController : ControllerBase
+    public class VendorsController : ControllerBase
     {
         private readonly PhoneManagementContext _context;
 
-        public CategoriesController(PhoneManagementContext context)
+        public VendorsController(PhoneManagementContext context)
         {
             _context = context;
         }
 
-        // GET: api/Categories
-
-        [HttpGet]
-        public async Task<ActionResult<IEnumerable<Category>>> GetCategories()
+        // GET: api/Vendors
+        [HttpGet("GetVendors")]
+        public async Task<ActionResult<IEnumerable<Vendor>>> GetVendors()
         {
-          if (_context.Categories == null)
+          if (_context.Vendors == null)
           {
               return NotFound();
           }
-            return await _context.Categories.ToListAsync();
+            return await _context.Vendors.ToListAsync();
         }
 
-        // GET: api/Categories/5
+        // GET: api/Vendors/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<Category>> GetCategory(string id)
+        public async Task<ActionResult<Vendor>> GetVendor(string id)
         {
-          if (_context.Categories == null)
+          if (_context.Vendors == null)
           {
               return NotFound();
           }
-            var category = await _context.Categories.FindAsync(id);
+            var vendor = await _context.Vendors.FindAsync(id);
 
-            if (category == null)
+            if (vendor == null)
             {
                 return NotFound();
             }
 
-            return category;
+            return vendor;
         }
 
-        // PUT: api/Categories/5
+        // PUT: api/Vendors/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutCategory(string id, Category category)
+        public async Task<IActionResult> PutVendor(string id, Vendor vendor)
         {
-            if (id != category.CategoryId)
+            if (id != vendor.VendorId)
             {
                 return BadRequest();
             }
 
-            _context.Entry(category).State = EntityState.Modified;
+            _context.Entry(vendor).State = EntityState.Modified;
 
             try
             {
@@ -68,7 +67,7 @@ namespace PhoneSaleAPI.Controllers
             }
             catch (DbUpdateConcurrencyException)
             {
-                if (!CategoryExists(id))
+                if (!VendorExists(id))
                 {
                     return NotFound();
                 }
@@ -81,23 +80,23 @@ namespace PhoneSaleAPI.Controllers
             return NoContent();
         }
 
-        // POST: api/Categories
+        // POST: api/Vendors
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        public async Task<ActionResult<Category>> PostCategory(Category category)
+        public async Task<ActionResult<Vendor>> PostVendor(Vendor vendor)
         {
-          if (_context.Categories == null)
+          if (_context.Vendors == null)
           {
-              return Problem("Entity set 'PhoneManagementContext.Categories'  is null.");
+              return Problem("Entity set 'PhoneManagementContext.Vendors'  is null.");
           }
-            _context.Categories.Add(category);
+            _context.Vendors.Add(vendor);
             try
             {
                 await _context.SaveChangesAsync();
             }
             catch (DbUpdateException)
             {
-                if (CategoryExists(category.CategoryId))
+                if (VendorExists(vendor.VendorId))
                 {
                     return Conflict();
                 }
@@ -107,32 +106,32 @@ namespace PhoneSaleAPI.Controllers
                 }
             }
 
-            return CreatedAtAction("GetCategory", new { id = category.CategoryId }, category);
+            return CreatedAtAction("GetVendor", new { id = vendor.VendorId }, vendor);
         }
 
-        // DELETE: api/Categories/5
+        // DELETE: api/Vendors/5
         [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteCategory(string id)
+        public async Task<IActionResult> DeleteVendor(string id)
         {
-            if (_context.Categories == null)
+            if (_context.Vendors == null)
             {
                 return NotFound();
             }
-            var category = await _context.Categories.FindAsync(id);
-            if (category == null)
+            var vendor = await _context.Vendors.FindAsync(id);
+            if (vendor == null)
             {
                 return NotFound();
             }
 
-            _context.Categories.Remove(category);
+            _context.Vendors.Remove(vendor);
             await _context.SaveChangesAsync();
 
             return NoContent();
         }
 
-        private bool CategoryExists(string id)
+        private bool VendorExists(string id)
         {
-            return (_context.Categories?.Any(e => e.CategoryId == id)).GetValueOrDefault();
+            return (_context.Vendors?.Any(e => e.VendorId == id)).GetValueOrDefault();
         }
     }
 }

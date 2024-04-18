@@ -35,13 +35,9 @@ namespace PhoneSaleAPI.Controllers
 
         // GET: api/Product/5
         [HttpGet("GetProduct/{productId}")]
-        public async Task<ActionResult<Product>> GetProduct(string ProductId)
+        public async Task<ActionResult<Product>> GetProduct(string productId)
         {
-          if (_context.Products == null)
-          {
-              return NotFound();
-          }
-            var product = await _context.Products.FindAsync(ProductId);
+            var product = await _context.Products.FindAsync(productId);
 
             if (product == null)
             {
@@ -50,6 +46,7 @@ namespace PhoneSaleAPI.Controllers
 
             return product;
         }
+
 
         // PUT: api/Product/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
@@ -120,12 +117,14 @@ namespace PhoneSaleAPI.Controllers
                 return NotFound();
             }
             var product = await _context.Products.FindAsync(id);
-            if (product == null)
+            var productDetail = await _context.ProductDetails.FindAsync(id);
+            if (product == null && productDetail == null)
             {
                 return NotFound();
             }
 
             _context.Products.Remove(product);
+            _context.ProductDetails.Remove(productDetail);
             await _context.SaveChangesAsync();
 
             return NoContent();
@@ -159,6 +158,62 @@ namespace PhoneSaleAPI.Controllers
 
             return Ok(new { product.ProductId });
         }
+
+        [HttpPost("CreateProductAdmin")]
+        public async Task<IActionResult> CreateProductAdmin([FromBody] AdminCreateProduct productDTO)
+        {
+            if (productDTO != null)
+            {
+                // Kiểm tra các trường bắt buộc (đã bỏ qua để giảm chiều dài code)
+
+                try
+                {
+                    // Tạo GUID mới
+                    var guid = Guid.NewGuid();
+
+                    // Sử dụng GUID để tạo mã sản phẩm mới
+                    var newProductId = $"PRD{guid.ToString().Substring(0, 6).ToUpper()}";
+
+                    var product = new Product
+                    {
+                        ProductId = newProductId,
+                        ProductName = productDTO.ProductName,
+                        Price = productDTO.Price,
+                        Discount = productDTO.Discount,
+                        CategoryId = productDTO.CategoryId,
+                        VendorId = productDTO.VendorId,
+                        Detail = productDTO.Detail,
+                        Status = productDTO.Status
+                    };
+
+                    var productDetail = new ProductDetail
+                    {
+                        ProductId = newProductId,
+                        ColorName = productDTO.ColorName,
+                        StorageGb = productDTO.StorageGB,
+                        Amount = productDTO.Amount
+                    };
+
+                    _context.Products.Add(product);
+                    await _context.SaveChangesAsync();
+                    _context.ProductDetails.Add(productDetail);
+                    await _context.SaveChangesAsync();
+
+
+                    return Ok(new { product.ProductId });
+                }
+                catch (Exception ex)
+                {
+                    // Xử lý nếu có lỗi trong quá trình lưu sản phẩm vào CSDL
+                    return StatusCode(500, $"Internal server error: {ex.InnerException?.Message}");
+                }
+            }
+            else
+            {
+                return BadRequest("Invalid product data.");
+            }
+        }
+
         [HttpGet("GetProductImages/{productId}")]
         public async Task<ActionResult<IEnumerable<ProductImage>>> GetProductImages(string productId)
         {
@@ -188,6 +243,20 @@ namespace PhoneSaleAPI.Controllers
 
             return Ok(productDetail);
         }
+
+        [HttpGet("GetALLProductDetails")]
+        public async Task<ActionResult<IEnumerable<ProductDetail>>> GetALLProductDetail()
+        {
+            var productDetails = await _context.ProductDetails.ToListAsync();
+
+            if (productDetails == null)
+            {
+                return NotFound();
+            }
+
+            return productDetails;
+        }
+
 
     }
 }
