@@ -12,13 +12,14 @@ namespace PhoneSaleAPI.Models
 
         public string BillId { get; set; } = null!;
         public string? CustomerId { get; set; }
-        public string? EmployeeId { get; set; }
         public DateTime? DateBill { get; set; }
+        public string? DeliveryAddress { get; set; }
         public int? Status { get; set; }
         public int? TotalBill { get; set; }
+        public DateTime? UpdateAt { get; set; }
+        public string? Note { get; set; }
 
         public virtual Customer? Customer { get; set; }
-        public virtual Employee? Employee { get; set; }
         public virtual ICollection<BillDetail> BillDetails { get; set; }
     }
 }

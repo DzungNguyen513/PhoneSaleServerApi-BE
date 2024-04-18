@@ -10,9 +10,10 @@ builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+/*builder.Services.AddCors(option => option.AddDefaultPolicy(policy =>
+        policy.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod()));*/
 builder.Services.AddCors(option => option.AddDefaultPolicy(policy =>
         policy.WithOrigins("http://127.0.0.1:5500").AllowAnyHeader().AllowAnyMethod().AllowCredentials()));
-
 
 builder.Services.AddDbContext<PhoneManagementContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
@@ -35,6 +36,13 @@ app.UseStaticFiles(new StaticFileOptions
             Path.Combine(Directory.GetCurrentDirectory(), "Assets", "Images")),
     RequestPath = "/Assets/Images"
 });
+
+app.UseCors(options =>
+    options
+    .WithOrigins("http://127.0.0.1:5500")
+    .AllowAnyMethod()
+    .AllowAnyHeader());
+
 app.UseHttpsRedirection();
 
 app.UseAuthorization();
@@ -49,3 +57,5 @@ app.UseStaticFiles(new StaticFileOptions
 });
 
 app.Run();
+
+

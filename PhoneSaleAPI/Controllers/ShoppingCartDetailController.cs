@@ -26,6 +26,8 @@ namespace PhoneSaleAPI.Controllers
             var cartItems = (from product in _context.Products
                              join cartDetail in _context.ShoppingCartDetails on product.ProductId equals cartDetail.ProductId
                              join cart in _context.ShoppingCarts on cartDetail.ShoppingCartId equals cart.ShoppingCartId
+                             join image in _context.ProductImages on product.ProductId equals image.ProductId into productImages
+                             from pi in productImages.Where(x => (bool)x.IsPrimary).DefaultIfEmpty()
                              where cart.CustomerId == customerId
                              select new CartItemDto
                              {
@@ -36,7 +38,7 @@ namespace PhoneSaleAPI.Controllers
                                  ColorName = product.ColorName,
                                  StorageGB = (int)product.StorageGb,
                                  Amount = (int)cartDetail.Amount,
-                                 Img = product.Img
+                                 Img = pi != null ? pi.ImagePath : null 
                              }).ToList();
 
             if (cartItems == null || cartItems.Count == 0)
@@ -46,6 +48,7 @@ namespace PhoneSaleAPI.Controllers
 
             return Ok(cartItems);
         }
+
         [HttpDelete("{shoppingCartId}/{productId}")]
         public async Task<IActionResult> DeleteProductFromCart(string shoppingCartId, string productId)
         {

@@ -11,7 +11,10 @@ namespace PhoneSaleAPI.Models
         }
 
         public string ColorName { get; set; } = null!;
+        public string? ColorImage { get; set; }
         public int? ColorPrice { get; set; }
+        public DateTime? CreateAt { get; set; }
+        public DateTime? UpdateAt { get; set; }
 
         public virtual ICollection<Product> Products { get; set; }
     }
