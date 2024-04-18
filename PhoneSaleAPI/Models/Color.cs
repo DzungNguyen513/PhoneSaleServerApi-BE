@@ -7,7 +7,10 @@ namespace PhoneSaleAPI.Models
     {
         public Color()
         {
-            Products = new HashSet<Product>();
+            BillDetails = new HashSet<BillDetail>();
+            ProductDetails = new HashSet<ProductDetail>();
+            ProductImages = new HashSet<ProductImage>();
+            ShoppingCartDetails = new HashSet<ShoppingCartDetail>();
         }
 
         public string ColorName { get; set; } = null!;
@@ -16,6 +19,9 @@ namespace PhoneSaleAPI.Models
         public DateTime? CreateAt { get; set; }
         public DateTime? UpdateAt { get; set; }
 
-        public virtual ICollection<Product> Products { get; set; }
+        public virtual ICollection<BillDetail> BillDetails { get; set; }
+        public virtual ICollection<ProductDetail> ProductDetails { get; set; }
+        public virtual ICollection<ProductImage> ProductImages { get; set; }
+        public virtual ICollection<ShoppingCartDetail> ShoppingCartDetails { get; set; }
     }
 }
