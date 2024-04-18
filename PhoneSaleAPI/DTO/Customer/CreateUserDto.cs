@@ -1,4 +1,4 @@
-﻿namespace PhoneSaleAPI.DTO
+﻿namespace PhoneSaleAPI.DTO.Customer
 {
     public class CreateUserDto
     {

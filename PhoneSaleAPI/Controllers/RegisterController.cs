@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using PhoneSaleAPI.DTO;
+using PhoneSaleAPI.DTO.Customer;
 using PhoneSaleAPI.Models;
 
 namespace PhoneSaleAPI.Controllers

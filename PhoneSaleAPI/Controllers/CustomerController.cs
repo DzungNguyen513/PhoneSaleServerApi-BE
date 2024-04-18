@@ -7,7 +7,8 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using PhoneSaleAPI.DTO;
+using PhoneSaleAPI.DTO.Bill;
+using PhoneSaleAPI.DTO.Customer;
 using PhoneSaleAPI.Models;
 
 namespace PhoneSaleAPI.Controllers
@@ -278,6 +279,6 @@ namespace PhoneSaleAPI.Controllers
                 return StatusCode(500, new { success = false, message = ex.Message });
             }
         }
-
+        
     }
 }

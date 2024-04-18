@@ -1,4 +1,4 @@
-﻿namespace PhoneSaleAPI.DTO
+﻿namespace PhoneSaleAPI.DTO.ShoppingCart
 {
     public class UpdateAmountRequest
     {

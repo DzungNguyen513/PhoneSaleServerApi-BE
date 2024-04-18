@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using System.Security.Cryptography;
 using System.Text;
 using PhoneSaleAPI.Models;
-using PhoneSaleAPI.DTO;
+using PhoneSaleAPI.DTO.Customer;
 
 [ApiController]
 [Route("api/[controller]")]
