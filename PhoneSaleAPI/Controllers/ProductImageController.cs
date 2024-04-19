@@ -20,7 +20,7 @@ namespace PhoneSaleAPI.Controllers
         {
             _context = context;
         }
-        [HttpPost("{productId}/images")]
+        [HttpPost("{productId}")]
         public async Task<IActionResult> AddProductImage(string productId, [FromForm] ProductImageDTO productImageDTO)
         {
             if (productImageDTO.ImageFile != null)
@@ -61,6 +61,7 @@ namespace PhoneSaleAPI.Controllers
                 {
                     ProductImageId = newProductImageId,
                     ProductId = productId,
+                    ColorName = productImageDTO.ColorName,
                     ImagePath = fileName,
                     IsPrimary = productImageDTO.IsPrimary
                 };
@@ -75,8 +76,5 @@ namespace PhoneSaleAPI.Controllers
                 return BadRequest("Không tìm thấy hình ảnh để tải lên.");
             }
         }
-
-
-
     }
 }

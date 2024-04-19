@@ -7,7 +7,9 @@ namespace PhoneSaleAPI.Models
     {
         public Storage()
         {
-            Products = new HashSet<Product>();
+            BillDetails = new HashSet<BillDetail>();
+            ProductDetails = new HashSet<ProductDetail>();
+            ShoppingCartDetails = new HashSet<ShoppingCartDetail>();
         }
 
         public int StorageGb { get; set; }
@@ -15,6 +17,8 @@ namespace PhoneSaleAPI.Models
         public DateTime? CreateAt { get; set; }
         public DateTime? UpdateAt { get; set; }
 
-        public virtual ICollection<Product> Products { get; set; }
+        public virtual ICollection<BillDetail> BillDetails { get; set; }
+        public virtual ICollection<ProductDetail> ProductDetails { get; set; }
+        public virtual ICollection<ShoppingCartDetail> ShoppingCartDetails { get; set; }
     }
 }
