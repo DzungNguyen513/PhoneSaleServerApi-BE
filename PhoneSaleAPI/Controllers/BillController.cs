@@ -153,7 +153,7 @@ namespace PhoneSaleAPI.Controllers
                 CustomerPhone = billDTO.CustomerPhone,
                 Note = billDTO.Note,
                 Status = 0,
-                TotalBill = 0 // Tính sau khi tính chi tiết
+                TotalBill = 0 
             };
 
             _context.Bills.Add(bill);
@@ -177,7 +177,7 @@ namespace PhoneSaleAPI.Controllers
                     Amount = detail.Amount,
                     Price = detail.Price,
                     Discount = discount, 
-                    Total = detail.Amount * (detail.Price - (detail.Price * discount / 100))
+                    Total = detail.Amount * detail.Price
                 };
 
                 _context.BillDetails.Add(billDetail);

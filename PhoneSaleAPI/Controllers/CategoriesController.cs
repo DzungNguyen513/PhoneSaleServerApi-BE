@@ -22,7 +22,7 @@ namespace PhoneSaleAPI.Controllers
 
         // GET: api/Categories
 
-        [HttpGet]
+        [HttpGet("GetCategories")]
         public async Task<ActionResult<IEnumerable<Category>>> GetCategories()
         {
           if (_context.Categories == null)
