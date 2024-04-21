@@ -7,7 +7,8 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using PhoneSaleAPI.DTO;
+using PhoneSaleAPI.DTO.Bill;
+using PhoneSaleAPI.DTO.Customer;
 using PhoneSaleAPI.Models;
 
 namespace PhoneSaleAPI.Controllers
@@ -222,7 +223,62 @@ namespace PhoneSaleAPI.Controllers
 
             return Ok(new { customerId = customer.CustomerId });
         }
+        [HttpGet("GetCustomerByEmail/{email}")]
+        public async Task<IActionResult> GetCustomerByEmail(string email)
+        {
+            if (string.IsNullOrWhiteSpace(email))
+            {
+                return BadRequest(new { error = "Vui lòng nhập Email" });
+            }
 
+            var customer = await _context.Customers.FirstOrDefaultAsync(c => c.Email == email);
+            if (customer == null)
+            {
+                return NotFound(new { error = "Không tìm thấy Customer" });
+            }
+
+            var customerDTO = new CustomerByEmailDTO
+            {
+                CustomerName = customer.CustomerName,
+                PhoneNumber = customer.PhoneNumber,
+                Address = customer.Address,
+                Gender = customer.Gender
+            };
+
+            return Ok(customerDTO);
+        }
+
+        [HttpPut("UpdateCustomer/{customerId}")]
+        public async Task<IActionResult> UpdateCustomer(string customerId, [FromBody] CustomerUpdateDTO customerUpdateDto)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            var customer = await _context.Customers.FindAsync(customerId);
+            if (customer == null)
+            {
+                return NotFound($"Không tìm thấy khách hàng có ID {customerId}");
+            }
+
+            customer.CustomerName = customerUpdateDto.CustomerName ?? customer.CustomerName;
+            customer.PhoneNumber = customerUpdateDto.PhoneNumber ?? customer.PhoneNumber;
+            customer.Email = customerUpdateDto.Email ?? customer.Email;
+            customer.Address = customerUpdateDto.Address ?? customer.Address;
+            customer.Gender = customerUpdateDto.Gender;
+
+            try
+            {
+                _context.Customers.Update(customer);
+                await _context.SaveChangesAsync();
+                return Ok(new { success = true, message = "Cập nhật thông tin khách hàng thành công" });
+            }
+            catch (Exception ex) 
+            {
+                return StatusCode(500, new { success = false, message = ex.Message });
+            }
+        }
+        
     }
-
 }

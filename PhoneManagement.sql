@@ -99,7 +99,7 @@ create table Customer( -- Khách hàng
 	Password nvarchar(100),
 	PhoneNumber nvarchar(20),
 	Address nvarchar(max),
-	Gender bit,
+	Gender int,
 	Status int, -- 0: Đã khóa, 1: Đã kích hoạt
 	LastLogin datetime,
 	CreateAt datetime default getdate(),
@@ -336,33 +336,12 @@ GO
 INSERT INTO [dbo].[Product] 
 ([ProductID], [ProductName], [Price], [Discount], [CategoryID], [VendorID], [Detail], [Status]) 
 VALUES 
-(N'PRD001', N'Iphone X', 10000, 5, N'CT001', N'VD002', N'Màn hình OLED 5.8 inch, độ phân giải 1125 x 2436 pixels, 
-													  Tần số quét 60Hz, Camera kép 12MP với ổn định hình ảnh quang học, 
-													  Face ID nâng cao với công nghệ nhận diện khuôn mặt 3D, 
-													  Thân máy bằng kính và thép không gỉ, hỗ trợ sạc không dây.', 1),
-(N'PRD002', N'Iphone 11 Pro Max', 11000, 5, N'CT001', N'VD003', N'Màn hình Super Retina XDR 6.5 inch, Tần số quét 60Hz, 
-															   hỗ trợ HDR10, Dolby Vision, 
-															   ba camera sau 12MP với chế độ chụp đêm và chân dung nâng cao, 
-															   Chống nước IP68, A13 Bionic chip với Neural Engine thế hệ mới.', 1),
-(N'PRD003', N'Iphone 12 Pro Max', 12000, 5, N'CT001', N'VD003', N'5G-ready, Màn hình Super Retina XDR 6.7 inch, 
-															   Tần số quét 60Hz, Ceramic Shield chống trầy xước, 
-															   hệ thống 4 camera với LiDAR scanner cho AR và chụp ảnh chuyên nghiệp, 
-															   A14 Bionic chip, 128GB bộ nhớ cơ bản, màu Pacific Blue mới.', 1),
-(N'PRD004', N'Iphone 13 Pro Max', 13000, 5, N'CT001', N'VD003', N'Màn hình Super Retina XDR với ProMotion 6.7 inch, 
-															   Tần số quét 120Hz, A15 Bionic chip, 
-															   hệ thống camera Pro mới với Telephoto, 
-															   Wide và Ultra Wide, video ProRes, 
-															   quay phim Pro mode, Photographic Styles, Smart HDR 4, chống nước IP68.', 1),
-(N'PRD005', N'Iphone 14 Pro Max', 14000, 5, N'CT001', N'VD001', N'Thiết kế notch mới, Dynamic Island, 
-															   Màn hình Super Retina XDR 6.7 inch, Tần số quét 120Hz, 
-															   công nghệ Always-On display, A16 Bionic chip, 
-															   hệ thống camera nâng cao với 48MP main sensor, chế độ Cinema mode, 
-															   tính năng Emergency SOS via satellite.', 1),
-(N'PRD006', N'Iphone 15 Pro Max', 15000, 5, N'CT001', N'VD002', N'Tiếp tục với Dynamic Island, 
-															   Tần số quét 120Hz, màn hình OLED mới, A17 Bionic chip, 
-															   sạc nhanh hơn, hỗ trợ Apple Pencil, USB-C thay cho Lightning, 
-															   cải tiến hơn về bảo mật Face ID, 
-															   camera Pro level với tính năng macro photography mới.', 1)
+(N'PRD001', N'Iphone X', 10000, 5, N'CT001', N'VD002', N'Màn hình OLED 5.8 inch, độ phân giải 1125 x 2436 pixels, Tần số quét 60Hz, Camera kép 12MP với ổn định hình ảnh quang học, Face ID nâng cao với công nghệ nhận diện khuôn mặt 3D, Thân máy bằng kính và thép không gỉ, hỗ trợ sạc không dây.', 1),
+(N'PRD002', N'Iphone 11 Pro Max', 11000, 5, N'CT001', N'VD003', N'Màn hình Super Retina XDR 6.5 inch, Tần số quét 60Hz, hỗ trợ HDR10, Dolby Vision, ba camera sau 12MP với chế độ chụp đêm và chân dung nâng cao, Chống nước IP68, A13 Bionic chip với Neural Engine thế hệ mới.', 1),
+(N'PRD003', N'Iphone 12 Pro Max', 12000, 5, N'CT001', N'VD003', N'5G-ready, Màn hình Super Retina XDR 6.7 inch, Tần số quét 60Hz, Ceramic Shield chống trầy xước, hệ thống 4 camera với LiDAR scanner cho AR và chụp ảnh chuyên nghiệp, A14 Bionic chip, 128GB bộ nhớ cơ bản, màu Pacific Blue mới.', 1),
+(N'PRD004', N'Iphone 13 Pro Max', 13000, 5, N'CT001', N'VD003', N'Màn hình Super Retina XDR với ProMotion 6.7 inch, Tần số quét 120Hz, A15 Bionic chip, hệ thống camera Pro mới với Telephoto, Wide và Ultra Wide, video ProRes, quay phim Pro mode, Photographic Styles, Smart HDR 4, chống nước IP68.', 1),
+(N'PRD005', N'Iphone 14 Pro Max', 14000, 5, N'CT001', N'VD001', N'Thiết kế notch mới, Dynamic Island,Màn hình Super Retina XDR 6.7 inch, Tần số quét 120Hz, công nghệ Always-On display, A16 Bionic chip, hệ thống camera nâng cao với 48MP main sensor, chế độ Cinema mode, tính năng Emergency SOS via satellite.', 1),
+(N'PRD006', N'Iphone 15 Pro Max', 15000, 5, N'CT001', N'VD002', N'Tiếp tục với Dynamic Island, Tần số quét 120Hz, màn hình OLED mới, A17 Bionic chip, sạc nhanh hơn, hỗ trợ Apple Pencil, USB-C thay cho Lightning, cải tiến hơn về bảo mật Face ID, camera Pro level với tính năng macro photography mới.', 1)
 GO
 
 INSERT [dbo].[ShoppingCartDetail] ([ShoppingCartID], [ProductID],[ColorName], [StorageGB], [Amount], [Total]) VALUES (N'SPC001', N'PRD001', N'Đen', 64, 1, 0)

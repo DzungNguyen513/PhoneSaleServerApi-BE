@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using PhoneSaleAPI.DTO;
+using PhoneSaleAPI.DTO.Product;
 using PhoneSaleAPI.Models;
 
 namespace PhoneSaleAPI.Controllers
@@ -76,5 +76,34 @@ namespace PhoneSaleAPI.Controllers
                 return BadRequest("Không tìm thấy hình ảnh để tải lên.");
             }
         }
+        [HttpGet("GetProductImagesByPath/{productId}")]
+        public async Task<ActionResult<IEnumerable<string>>> GetProductImagesByPath(string productId)
+        {
+            try
+            {
+                var folderPath = Path.Combine("Assets", "Images", productId);
+                var imageFiles = Directory.GetFiles(folderPath);
+
+                if (imageFiles.Length == 0)
+                {
+                    return NotFound($"Không tìm thấy ảnh cho sản phẩm có id là {productId}");
+                }
+
+                var imagePaths = new List<string>();
+                foreach (var imagePath in imageFiles)
+                {
+                    var relativePath = Path.Combine(folderPath, Path.GetFileName(imagePath));
+                    imagePaths.Add(relativePath);
+                }
+
+                return Ok(imagePaths);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Đã xảy ra lỗi khi lấy ảnh: {ex.Message}");
+            }
+        }
+
+
     }
 }
