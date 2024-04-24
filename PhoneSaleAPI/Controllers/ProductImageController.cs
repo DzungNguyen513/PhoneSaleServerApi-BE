@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using PhoneSaleAPI.DTO;
+using PhoneSaleAPI.DTO.Product;
 using PhoneSaleAPI.Models;
 
 namespace PhoneSaleAPI.Controllers

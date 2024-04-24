@@ -11,56 +11,55 @@ namespace PhoneSaleAPI.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class CategoriesController : ControllerBase
+    public class BillDetailController : ControllerBase
     {
         private readonly PhoneManagementContext _context;
 
-        public CategoriesController(PhoneManagementContext context)
+        public BillDetailController(PhoneManagementContext context)
         {
             _context = context;
         }
 
-        // GET: api/Categories
-
-        [HttpGet("GetAllCategories")]
-        public async Task<ActionResult<IEnumerable<Category>>> GetCategories()
+        // GET: api/BillDetail
+        [HttpGet]
+        public async Task<ActionResult<IEnumerable<BillDetail>>> GetBillDetails()
         {
-          if (_context.Categories == null)
+          if (_context.BillDetails == null)
           {
               return NotFound();
           }
-            return await _context.Categories.ToListAsync();
+            return await _context.BillDetails.ToListAsync();
         }
 
-        // GET: api/Categories/5
+        // GET: api/BillDetail/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<Category>> GetCategory(string id)
+        public async Task<ActionResult<BillDetail>> GetBillDetail(string id)
         {
-          if (_context.Categories == null)
+          if (_context.BillDetails == null)
           {
               return NotFound();
           }
-            var category = await _context.Categories.FindAsync(id);
+            var billDetail = await _context.BillDetails.FindAsync(id);
 
-            if (category == null)
+            if (billDetail == null)
             {
                 return NotFound();
             }
 
-            return category;
+            return billDetail;
         }
 
-        // PUT: api/Categories/5
+        // PUT: api/BillDetail/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutCategory(string id, Category category)
+        public async Task<IActionResult> PutBillDetail(string id, BillDetail billDetail)
         {
-            if (id != category.CategoryId)
+            if (id != billDetail.BillId)
             {
                 return BadRequest();
             }
 
-            _context.Entry(category).State = EntityState.Modified;
+            _context.Entry(billDetail).State = EntityState.Modified;
 
             try
             {
@@ -68,7 +67,7 @@ namespace PhoneSaleAPI.Controllers
             }
             catch (DbUpdateConcurrencyException)
             {
-                if (!CategoryExists(id))
+                if (!BillDetailExists(id))
                 {
                     return NotFound();
                 }
@@ -81,23 +80,23 @@ namespace PhoneSaleAPI.Controllers
             return NoContent();
         }
 
-        // POST: api/Categories
+        // POST: api/BillDetail
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        public async Task<ActionResult<Category>> PostCategory(Category category)
+        public async Task<ActionResult<BillDetail>> PostBillDetail(BillDetail billDetail)
         {
-          if (_context.Categories == null)
+          if (_context.BillDetails == null)
           {
-              return Problem("Entity set 'PhoneManagementContext.Categories'  is null.");
+              return Problem("Entity set 'PhoneManagementContext.BillDetails'  is null.");
           }
-            _context.Categories.Add(category);
+            _context.BillDetails.Add(billDetail);
             try
             {
                 await _context.SaveChangesAsync();
             }
             catch (DbUpdateException)
             {
-                if (CategoryExists(category.CategoryId))
+                if (BillDetailExists(billDetail.BillId))
                 {
                     return Conflict();
                 }
@@ -107,32 +106,32 @@ namespace PhoneSaleAPI.Controllers
                 }
             }
 
-            return CreatedAtAction("GetCategory", new { id = category.CategoryId }, category);
+            return CreatedAtAction("GetBillDetail", new { id = billDetail.BillId }, billDetail);
         }
 
-        // DELETE: api/Categories/5
+        // DELETE: api/BillDetail/5
         [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteCategory(string id)
+        public async Task<IActionResult> DeleteBillDetail(string id)
         {
-            if (_context.Categories == null)
+            if (_context.BillDetails == null)
             {
                 return NotFound();
             }
-            var category = await _context.Categories.FindAsync(id);
-            if (category == null)
+            var billDetail = await _context.BillDetails.FindAsync(id);
+            if (billDetail == null)
             {
                 return NotFound();
             }
 
-            _context.Categories.Remove(category);
+            _context.BillDetails.Remove(billDetail);
             await _context.SaveChangesAsync();
 
             return NoContent();
         }
 
-        private bool CategoryExists(string id)
+        private bool BillDetailExists(string id)
         {
-            return (_context.Categories?.Any(e => e.CategoryId == id)).GetValueOrDefault();
+            return (_context.BillDetails?.Any(e => e.BillId == id)).GetValueOrDefault();
         }
     }
 }

@@ -11,56 +11,55 @@ namespace PhoneSaleAPI.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class CategoriesController : ControllerBase
+    public class AccountsController : ControllerBase
     {
         private readonly PhoneManagementContext _context;
 
-        public CategoriesController(PhoneManagementContext context)
+        public AccountsController(PhoneManagementContext context)
         {
             _context = context;
         }
 
-        // GET: api/Categories
-
-        [HttpGet("GetAllCategories")]
-        public async Task<ActionResult<IEnumerable<Category>>> GetCategories()
+        // GET: api/Accounts
+        [HttpGet("GetAllAccounts")]
+        public async Task<ActionResult<IEnumerable<Account>>> GetAccounts()
         {
-          if (_context.Categories == null)
+          if (_context.Accounts == null)
           {
               return NotFound();
           }
-            return await _context.Categories.ToListAsync();
+            return await _context.Accounts.ToListAsync();
         }
 
-        // GET: api/Categories/5
+        // GET: api/Accounts/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<Category>> GetCategory(string id)
+        public async Task<ActionResult<Account>> GetAccount(string id)
         {
-          if (_context.Categories == null)
+          if (_context.Accounts == null)
           {
               return NotFound();
           }
-            var category = await _context.Categories.FindAsync(id);
+            var account = await _context.Accounts.FindAsync(id);
 
-            if (category == null)
+            if (account == null)
             {
                 return NotFound();
             }
 
-            return category;
+            return account;
         }
 
-        // PUT: api/Categories/5
+        // PUT: api/Accounts/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutCategory(string id, Category category)
+        public async Task<IActionResult> PutAccount(string id, Account account)
         {
-            if (id != category.CategoryId)
+            if (id != account.AccountId)
             {
                 return BadRequest();
             }
 
-            _context.Entry(category).State = EntityState.Modified;
+            _context.Entry(account).State = EntityState.Modified;
 
             try
             {
@@ -68,7 +67,7 @@ namespace PhoneSaleAPI.Controllers
             }
             catch (DbUpdateConcurrencyException)
             {
-                if (!CategoryExists(id))
+                if (!AccountExists(id))
                 {
                     return NotFound();
                 }
@@ -81,23 +80,23 @@ namespace PhoneSaleAPI.Controllers
             return NoContent();
         }
 
-        // POST: api/Categories
+        // POST: api/Accounts
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        public async Task<ActionResult<Category>> PostCategory(Category category)
+        public async Task<ActionResult<Account>> PostAccount(Account account)
         {
-          if (_context.Categories == null)
+          if (_context.Accounts == null)
           {
-              return Problem("Entity set 'PhoneManagementContext.Categories'  is null.");
+              return Problem("Entity set 'PhoneManagementContext.Accounts'  is null.");
           }
-            _context.Categories.Add(category);
+            _context.Accounts.Add(account);
             try
             {
                 await _context.SaveChangesAsync();
             }
             catch (DbUpdateException)
             {
-                if (CategoryExists(category.CategoryId))
+                if (AccountExists(account.AccountId))
                 {
                     return Conflict();
                 }
@@ -107,32 +106,32 @@ namespace PhoneSaleAPI.Controllers
                 }
             }
 
-            return CreatedAtAction("GetCategory", new { id = category.CategoryId }, category);
+            return CreatedAtAction("GetAccount", new { id = account.AccountId }, account);
         }
 
-        // DELETE: api/Categories/5
+        // DELETE: api/Accounts/5
         [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteCategory(string id)
+        public async Task<IActionResult> DeleteAccount(string id)
         {
-            if (_context.Categories == null)
+            if (_context.Accounts == null)
             {
                 return NotFound();
             }
-            var category = await _context.Categories.FindAsync(id);
-            if (category == null)
+            var account = await _context.Accounts.FindAsync(id);
+            if (account == null)
             {
                 return NotFound();
             }
 
-            _context.Categories.Remove(category);
+            _context.Accounts.Remove(account);
             await _context.SaveChangesAsync();
 
             return NoContent();
         }
 
-        private bool CategoryExists(string id)
+        private bool AccountExists(string id)
         {
-            return (_context.Categories?.Any(e => e.CategoryId == id)).GetValueOrDefault();
+            return (_context.Accounts?.Any(e => e.AccountId == id)).GetValueOrDefault();
         }
     }
 }
