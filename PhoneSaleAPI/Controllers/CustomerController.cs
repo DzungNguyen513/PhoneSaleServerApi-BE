@@ -279,6 +279,45 @@ namespace PhoneSaleAPI.Controllers
                 return StatusCode(500, new { success = false, message = ex.Message });
             }
         }
-        
+        [HttpPost("ChangePassword")]
+        public async Task<IActionResult> ChangePassword([FromBody] ChangePassDTO changePassDTO)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            var customer = await _context.Customers
+                .FirstOrDefaultAsync(c => c.Email == changePassDTO.Email && c.Status == 1);
+
+            if (customer == null)
+            {
+                return NotFound(new { success = false, message = "Không tìm thấy tài khoản" });
+            }
+
+            var hashedOldPassword = HashPassword(changePassDTO.OldPassword);
+            var hashedNewPassword = HashPassword(changePassDTO.NewPassword);
+
+            if (customer.Password != hashedOldPassword)
+            {
+                return BadRequest(new { success = false, message = "Mật khẩu cũ không chính xác" });
+            }
+
+            if (hashedOldPassword == hashedNewPassword)
+            {
+                return BadRequest(new { success = false, message = "Mật khẩu mới không được trùng với mật khẩu cũ" });
+            }
+
+            if (changePassDTO.NewPassword != changePassDTO.ConfirmNewPassword)
+            {
+                return BadRequest(new { success = false, message = "Mật khẩu mới và xác nhận mật khẩu mới không trùng khớp" });
+            }
+
+            customer.Password = hashedNewPassword;
+            _context.Customers.Update(customer);
+            await _context.SaveChangesAsync();
+
+            return Ok(new { success = true, message = "Đổi mật khẩu thành công" });
+        }
     }
 }
