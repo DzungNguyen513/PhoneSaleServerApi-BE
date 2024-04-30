@@ -1,6 +1,6 @@
-﻿namespace PhoneSaleAPI.DTO
+﻿namespace PhoneSaleAPI.DTO.Customer
 {
-    public class RegisterCustomerModel
+    public class LoginModel
     {
         public string Email { get; set; }
         public string Password { get; set; }

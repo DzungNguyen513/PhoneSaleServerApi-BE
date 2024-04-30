@@ -7,13 +7,13 @@ namespace PhoneSaleAPI.Models
     {
         public string MessageId { get; set; } = null!;
         public string? SessionId { get; set; }
-        public string? SentByAccountId { get; set; }
-        public string? SentByCustomerId { get; set; }
+        public string? AccountId { get; set; }
+        public string? CustomerId { get; set; }
         public string? MessageText { get; set; }
         public DateTime? SentAt { get; set; }
 
-        public virtual Account? SentByAccount { get; set; }
-        public virtual Customer? SentByCustomer { get; set; }
+        public virtual Account? Account { get; set; }
+        public virtual Customer? Customer { get; set; }
         public virtual ChatSession? Session { get; set; }
     }
 }

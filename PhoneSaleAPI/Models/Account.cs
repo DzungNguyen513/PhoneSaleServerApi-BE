@@ -11,7 +11,8 @@ namespace PhoneSaleAPI.Models
             ChatSessions = new HashSet<ChatSession>();
         }
 
-        public string Username { get; set; } = null!;
+        public string AccountId { get; set; } = null!;
+        public string? Username { get; set; }
         public string? Password { get; set; }
         public DateTime? LastLogin { get; set; }
         public int? Status { get; set; }

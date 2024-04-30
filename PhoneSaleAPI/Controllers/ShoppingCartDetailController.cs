@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using PhoneSaleAPI.DTO;
+using PhoneSaleAPI.DTO.ShoppingCart;
 using PhoneSaleAPI.Models;
 
 namespace PhoneSaleAPI.Controllers
@@ -21,27 +21,29 @@ namespace PhoneSaleAPI.Controllers
             _context = context;
         }
         [HttpGet("GetCartItems/{customerId}")]
-        public ActionResult<IEnumerable<CartItemDto>> GetCartItems(string customerId)
+        public async Task<ActionResult<IEnumerable<CartItemDto>>> GetCartItems(string customerId)
         {
-            var cartItems = (from product in _context.Products
-                             join cartDetail in _context.ShoppingCartDetails on product.ProductId equals cartDetail.ProductId
-                             join cart in _context.ShoppingCarts on cartDetail.ShoppingCartId equals cart.ShoppingCartId
-                             join image in _context.ProductImages on product.ProductId equals image.ProductId into productImages
-                             from pi in productImages.Where(x => (bool)x.IsPrimary).DefaultIfEmpty()
-                             where cart.CustomerId == customerId
-                             select new CartItemDto
-                             {
-                                 ShoppingCartId = cart.ShoppingCartId,
-                                 ProductID = product.ProductId,
-                                 ProductName = product.ProductName,
-                                 Price = (int)product.Price,
-                                 ColorName = product.ColorName,
-                                 StorageGB = (int)product.StorageGb,
-                                 Amount = (int)cartDetail.Amount,
-                                 Img = pi != null ? pi.ImagePath : null 
-                             }).ToList();
-
-            if (cartItems == null || cartItems.Count == 0)
+            var cartItems = await (from product in _context.Products
+                                   join cartDetail in _context.ShoppingCartDetails on product.ProductId equals cartDetail.ProductId
+                                   join cart in _context.ShoppingCarts on cartDetail.ShoppingCartId equals cart.ShoppingCartId
+                                   join color in _context.Colors on cartDetail.ColorName equals color.ColorName
+                                   join storage in _context.Storages on cartDetail.StorageGb equals storage.StorageGb
+                                   join image in _context.ProductImages on new { product.ProductId, cartDetail.ColorName } equals new { image.ProductId, image.ColorName } into productImages
+                                   from pi in productImages.DefaultIfEmpty()
+                                   where cart.CustomerId == customerId
+                                   select new CartItemDto
+                                   {
+                                       ShoppingCartId = cart.ShoppingCartId,
+                                       ProductID = product.ProductId,
+                                       ProductName = product.ProductName,
+                                       OriginalPrice = (int)(product.Price + color.ColorPrice + storage.StoragePrice),
+                                       DiscountedPrice = (int)((product.Price + color.ColorPrice + storage.StoragePrice) * (1 - (product.Discount / 100.0))),
+                                       ColorName = cartDetail.ColorName,
+                                       StorageGB = cartDetail.StorageGb,
+                                       Amount = (int)cartDetail.Amount,
+                                       Img = pi != null ? pi.ImagePath : null
+                                   }).ToListAsync();
+            if (!cartItems.Any())
             {
                 return NotFound();
             }

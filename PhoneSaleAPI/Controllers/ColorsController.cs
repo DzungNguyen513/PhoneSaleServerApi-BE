@@ -11,56 +11,55 @@ namespace PhoneSaleAPI.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class CategoriesController : ControllerBase
+    public class ColorsController : ControllerBase
     {
         private readonly PhoneManagementContext _context;
 
-        public CategoriesController(PhoneManagementContext context)
+        public ColorsController(PhoneManagementContext context)
         {
             _context = context;
         }
 
-        // GET: api/Categories
-
-        [HttpGet("GetCategories")]
-        public async Task<ActionResult<IEnumerable<Category>>> GetCategories()
+        // GET: api/Colors
+        [HttpGet("GetColors")]
+        public async Task<ActionResult<IEnumerable<Color>>> GetColors()
         {
-          if (_context.Categories == null)
+          if (_context.Colors == null)
           {
               return NotFound();
           }
-            return await _context.Categories.ToListAsync();
+            return await _context.Colors.ToListAsync();
         }
 
-        // GET: api/Categories/5
+        // GET: api/Colors/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<Category>> GetCategory(string id)
+        public async Task<ActionResult<Color>> GetColor(string id)
         {
-          if (_context.Categories == null)
+          if (_context.Colors == null)
           {
               return NotFound();
           }
-            var category = await _context.Categories.FindAsync(id);
+            var color = await _context.Colors.FindAsync(id);
 
-            if (category == null)
+            if (color == null)
             {
                 return NotFound();
             }
 
-            return category;
+            return color;
         }
 
-        // PUT: api/Categories/5
+        // PUT: api/Colors/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutCategory(string id, Category category)
+        public async Task<IActionResult> PutColor(string id, Color color)
         {
-            if (id != category.CategoryId)
+            if (id != color.ColorName)
             {
                 return BadRequest();
             }
 
-            _context.Entry(category).State = EntityState.Modified;
+            _context.Entry(color).State = EntityState.Modified;
 
             try
             {
@@ -68,7 +67,7 @@ namespace PhoneSaleAPI.Controllers
             }
             catch (DbUpdateConcurrencyException)
             {
-                if (!CategoryExists(id))
+                if (!ColorExists(id))
                 {
                     return NotFound();
                 }
@@ -81,23 +80,23 @@ namespace PhoneSaleAPI.Controllers
             return NoContent();
         }
 
-        // POST: api/Categories
+        // POST: api/Colors
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        public async Task<ActionResult<Category>> PostCategory(Category category)
+        public async Task<ActionResult<Color>> PostColor(Color color)
         {
-          if (_context.Categories == null)
+          if (_context.Colors == null)
           {
-              return Problem("Entity set 'PhoneManagementContext.Categories'  is null.");
+              return Problem("Entity set 'PhoneManagementContext.Colors'  is null.");
           }
-            _context.Categories.Add(category);
+            _context.Colors.Add(color);
             try
             {
                 await _context.SaveChangesAsync();
             }
             catch (DbUpdateException)
             {
-                if (CategoryExists(category.CategoryId))
+                if (ColorExists(color.ColorName))
                 {
                     return Conflict();
                 }
@@ -107,32 +106,32 @@ namespace PhoneSaleAPI.Controllers
                 }
             }
 
-            return CreatedAtAction("GetCategory", new { id = category.CategoryId }, category);
+            return CreatedAtAction("GetColor", new { id = color.ColorName }, color);
         }
 
-        // DELETE: api/Categories/5
+        // DELETE: api/Colors/5
         [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteCategory(string id)
+        public async Task<IActionResult> DeleteColor(string id)
         {
-            if (_context.Categories == null)
+            if (_context.Colors == null)
             {
                 return NotFound();
             }
-            var category = await _context.Categories.FindAsync(id);
-            if (category == null)
+            var color = await _context.Colors.FindAsync(id);
+            if (color == null)
             {
                 return NotFound();
             }
 
-            _context.Categories.Remove(category);
+            _context.Colors.Remove(color);
             await _context.SaveChangesAsync();
 
             return NoContent();
         }
 
-        private bool CategoryExists(string id)
+        private bool ColorExists(string id)
         {
-            return (_context.Categories?.Any(e => e.CategoryId == id)).GetValueOrDefault();
+            return (_context.Colors?.Any(e => e.ColorName == id)).GetValueOrDefault();
         }
     }
 }

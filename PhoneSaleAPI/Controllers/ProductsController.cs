@@ -11,56 +11,55 @@ namespace PhoneSaleAPI.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class CategoriesController : ControllerBase
+    public class ProductsController : ControllerBase
     {
         private readonly PhoneManagementContext _context;
 
-        public CategoriesController(PhoneManagementContext context)
+        public ProductsController(PhoneManagementContext context)
         {
             _context = context;
         }
 
-        // GET: api/Categories
-
-        [HttpGet("GetCategories")]
-        public async Task<ActionResult<IEnumerable<Category>>> GetCategories()
+        // GET: api/Products
+        [HttpGet]
+        public async Task<ActionResult<IEnumerable<Product>>> GetProducts()
         {
-          if (_context.Categories == null)
+          if (_context.Products == null)
           {
               return NotFound();
           }
-            return await _context.Categories.ToListAsync();
+            return await _context.Products.ToListAsync();
         }
 
-        // GET: api/Categories/5
+        // GET: api/Products/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<Category>> GetCategory(string id)
+        public async Task<ActionResult<Product>> GetProduct(string id)
         {
-          if (_context.Categories == null)
+          if (_context.Products == null)
           {
               return NotFound();
           }
-            var category = await _context.Categories.FindAsync(id);
+            var product = await _context.Products.FindAsync(id);
 
-            if (category == null)
+            if (product == null)
             {
                 return NotFound();
             }
 
-            return category;
+            return product;
         }
 
-        // PUT: api/Categories/5
+        // PUT: api/Products/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutCategory(string id, Category category)
+        public async Task<IActionResult> PutProduct(string id, Product product)
         {
-            if (id != category.CategoryId)
+            if (id != product.ProductId)
             {
                 return BadRequest();
             }
 
-            _context.Entry(category).State = EntityState.Modified;
+            _context.Entry(product).State = EntityState.Modified;
 
             try
             {
@@ -68,7 +67,7 @@ namespace PhoneSaleAPI.Controllers
             }
             catch (DbUpdateConcurrencyException)
             {
-                if (!CategoryExists(id))
+                if (!ProductExists(id))
                 {
                     return NotFound();
                 }
@@ -81,23 +80,23 @@ namespace PhoneSaleAPI.Controllers
             return NoContent();
         }
 
-        // POST: api/Categories
+        // POST: api/Products
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        public async Task<ActionResult<Category>> PostCategory(Category category)
+        public async Task<ActionResult<Product>> PostProduct(Product product)
         {
-          if (_context.Categories == null)
+          if (_context.Products == null)
           {
-              return Problem("Entity set 'PhoneManagementContext.Categories'  is null.");
+              return Problem("Entity set 'PhoneManagementContext.Products'  is null.");
           }
-            _context.Categories.Add(category);
+            _context.Products.Add(product);
             try
             {
                 await _context.SaveChangesAsync();
             }
             catch (DbUpdateException)
             {
-                if (CategoryExists(category.CategoryId))
+                if (ProductExists(product.ProductId))
                 {
                     return Conflict();
                 }
@@ -107,32 +106,32 @@ namespace PhoneSaleAPI.Controllers
                 }
             }
 
-            return CreatedAtAction("GetCategory", new { id = category.CategoryId }, category);
+            return CreatedAtAction("GetProduct", new { id = product.ProductId }, product);
         }
 
-        // DELETE: api/Categories/5
+        // DELETE: api/Products/5
         [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteCategory(string id)
+        public async Task<IActionResult> DeleteProduct(string id)
         {
-            if (_context.Categories == null)
+            if (_context.Products == null)
             {
                 return NotFound();
             }
-            var category = await _context.Categories.FindAsync(id);
-            if (category == null)
+            var product = await _context.Products.FindAsync(id);
+            if (product == null)
             {
                 return NotFound();
             }
 
-            _context.Categories.Remove(category);
+            _context.Products.Remove(product);
             await _context.SaveChangesAsync();
 
             return NoContent();
         }
 
-        private bool CategoryExists(string id)
+        private bool ProductExists(string id)
         {
-            return (_context.Categories?.Any(e => e.CategoryId == id)).GetValueOrDefault();
+            return (_context.Products?.Any(e => e.ProductId == id)).GetValueOrDefault();
         }
     }
 }

@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using PhoneSaleAPI.DTO;
+using PhoneSaleAPI.DTO.Product;
 using PhoneSaleAPI.Models;
 
 namespace PhoneSaleAPI.Controllers
@@ -34,14 +34,10 @@ namespace PhoneSaleAPI.Controllers
         }
 
         // GET: api/Product/5
-        [HttpGet("{ProductId}")]
-        public async Task<ActionResult<Product>> GetProduct(string id)
+        [HttpGet("GetProduct/{productId}")]
+        public async Task<ActionResult<Product>> GetProduct(string productId)
         {
-          if (_context.Products == null)
-          {
-              return NotFound();
-          }
-            var product = await _context.Products.FindAsync(id);
+            var product = await _context.Products.FindAsync(productId);
 
             if (product == null)
             {
@@ -50,6 +46,7 @@ namespace PhoneSaleAPI.Controllers
 
             return product;
         }
+
 
         // PUT: api/Product/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
@@ -120,12 +117,14 @@ namespace PhoneSaleAPI.Controllers
                 return NotFound();
             }
             var product = await _context.Products.FindAsync(id);
-            if (product == null)
+            var productDetail = await _context.ProductDetails.FindAsync(id);
+            if (product == null && productDetail == null)
             {
                 return NotFound();
             }
 
             _context.Products.Remove(product);
+            _context.ProductDetails.Remove(productDetail);
             await _context.SaveChangesAsync();
 
             return NoContent();
@@ -147,9 +146,6 @@ namespace PhoneSaleAPI.Controllers
             {
                 ProductId = newProductId,
                 ProductName = productDTO.ProductName,
-                StorageGb = productDTO.StorageGB,
-                ColorName = productDTO.ColorName,
-                Amount = productDTO.Amount,
                 Price = productDTO.Price,
                 CategoryId = productDTO.CategoryId,
                 VendorId = productDTO.VendorId,
@@ -162,5 +158,105 @@ namespace PhoneSaleAPI.Controllers
 
             return Ok(new { product.ProductId });
         }
+
+        [HttpPost("CreateProductAdmin")]
+        public async Task<IActionResult> CreateProductAdmin([FromBody] AdminCreateProduct productDTO)
+        {
+            if (productDTO != null)
+            {
+                // Kiểm tra các trường bắt buộc (đã bỏ qua để giảm chiều dài code)
+
+                try
+                {
+                    // Tạo GUID mới
+                    var guid = Guid.NewGuid();
+
+                    // Sử dụng GUID để tạo mã sản phẩm mới
+                    var newProductId = $"PRD{guid.ToString().Substring(0, 6).ToUpper()}";
+
+                    var product = new Product
+                    {
+                        ProductId = newProductId,
+                        ProductName = productDTO.ProductName,
+                        Price = productDTO.Price,
+                        Discount = productDTO.Discount,
+                        CategoryId = productDTO.CategoryId,
+                        VendorId = productDTO.VendorId,
+                        Detail = productDTO.Detail,
+                        Status = productDTO.Status
+                    };
+
+                    var productDetail = new ProductDetail
+                    {
+                        ProductId = newProductId,
+                        ColorName = productDTO.ColorName,
+                        StorageGb = productDTO.StorageGB,
+                        Amount = productDTO.Amount
+                    };
+
+                    _context.Products.Add(product);
+                    await _context.SaveChangesAsync();
+                    _context.ProductDetails.Add(productDetail);
+                    await _context.SaveChangesAsync();
+
+
+                    return Ok(new { product.ProductId });
+                }
+                catch (Exception ex)
+                {
+                    // Xử lý nếu có lỗi trong quá trình lưu sản phẩm vào CSDL
+                    return StatusCode(500, $"Internal server error: {ex.InnerException?.Message}");
+                }
+            }
+            else
+            {
+                return BadRequest("Invalid product data.");
+            }
+        }
+
+        [HttpGet("GetProductImages/{productId}")]
+        public async Task<ActionResult<IEnumerable<ProductImage>>> GetProductImages(string productId)
+        {
+            var productImages = await _context.ProductImages
+                .Where(pi => pi.ProductId == productId)
+                .ToListAsync();
+
+            if (productImages == null || productImages.Count == 0)
+            {
+                return NotFound("Không tìm thấy ảnh cho sản phẩm có id là " + productId);
+            }
+
+            return Ok(productImages);
+        }
+
+        [HttpGet("GetProductDetails/{productId}")]
+        public async Task<ActionResult<IEnumerable<ProductImage>>> GetProductDetails(string productId)
+        {
+            var productDetail = await _context.ProductDetails
+                .Where(pi => pi.ProductId == productId)
+                .ToListAsync();
+
+            if (productDetail == null || productDetail.Count == 0)
+            {
+                return NotFound("Không tìm thấy  sản phẩm có id là " + productId);
+            }
+
+            return Ok(productDetail);
+        }
+
+        [HttpGet("GetALLProductDetails")]
+        public async Task<ActionResult<IEnumerable<ProductDetail>>> GetALLProductDetail()
+        {
+            var productDetails = await _context.ProductDetails.ToListAsync();
+
+            if (productDetails == null)
+            {
+                return NotFound();
+            }
+
+            return productDetails;
+        }
+
+
     }
 }
