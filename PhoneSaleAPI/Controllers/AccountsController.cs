@@ -11,57 +11,55 @@ namespace PhoneSaleAPI.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class BillDetailController : ControllerBase
+    public class AccountsController : ControllerBase
     {
         private readonly PhoneManagementContext _context;
 
-        public BillDetailController(PhoneManagementContext context)
+        public AccountsController(PhoneManagementContext context)
         {
             _context = context;
         }
 
-        // GET: api/BillDetail
-        [HttpGet]
-        public async Task<ActionResult<IEnumerable<BillDetail>>> GetBillDetails()
+        // GET: api/Accounts
+        [HttpGet("GetAllAccounts")]
+        public async Task<ActionResult<IEnumerable<Account>>> GetAccounts()
         {
-            if (_context.BillDetails == null)
+            if (_context.Accounts == null)
             {
                 return NotFound();
             }
-            return await _context.BillDetails.ToListAsync();
+            return await _context.Accounts.ToListAsync();
         }
 
-        // GET: api/BillDetail/5
+        // GET: api/Accounts/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<IEnumerable<BillDetail>>> GetBillDetail(string id)
+        public async Task<ActionResult<Account>> GetAccount(string id)
         {
-            if (_context.BillDetails == null)
+            if (_context.Accounts == null)
+            {
+                return NotFound();
+            }
+            var account = await _context.Accounts.FindAsync(id);
+
+            if (account == null)
             {
                 return NotFound();
             }
 
-            var billDetails = await _context.BillDetails.Where(b => b.BillId == id).ToListAsync();
-
-            if (billDetails == null || billDetails.Count == 0)
-            {
-                return NotFound();
-            }
-
-            return billDetails;
+            return account;
         }
 
-
-        // PUT: api/BillDetail/5
+        // PUT: api/Accounts/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutBillDetail(string id, BillDetail billDetail)
+        public async Task<IActionResult> PutAccount(string id, Account account)
         {
-            if (id != billDetail.BillId)
+            if (id != account.AccountId)
             {
                 return BadRequest();
             }
 
-            _context.Entry(billDetail).State = EntityState.Modified;
+            _context.Entry(account).State = EntityState.Modified;
 
             try
             {
@@ -69,7 +67,7 @@ namespace PhoneSaleAPI.Controllers
             }
             catch (DbUpdateConcurrencyException)
             {
-                if (!BillDetailExists(id))
+                if (!AccountExists(id))
                 {
                     return NotFound();
                 }
@@ -82,23 +80,23 @@ namespace PhoneSaleAPI.Controllers
             return NoContent();
         }
 
-        // POST: api/BillDetail
+        // POST: api/Accounts
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        public async Task<ActionResult<BillDetail>> PostBillDetail(BillDetail billDetail)
+        public async Task<ActionResult<Account>> PostAccount(Account account)
         {
-            if (_context.BillDetails == null)
+            if (_context.Accounts == null)
             {
-                return Problem("Entity set 'PhoneManagementContext.BillDetails'  is null.");
+                return Problem("Entity set 'PhoneManagementContext.Accounts'  is null.");
             }
-            _context.BillDetails.Add(billDetail);
+            _context.Accounts.Add(account);
             try
             {
                 await _context.SaveChangesAsync();
             }
             catch (DbUpdateException)
             {
-                if (BillDetailExists(billDetail.BillId))
+                if (AccountExists(account.AccountId))
                 {
                     return Conflict();
                 }
@@ -108,32 +106,32 @@ namespace PhoneSaleAPI.Controllers
                 }
             }
 
-            return CreatedAtAction("GetBillDetail", new { id = billDetail.BillId }, billDetail);
+            return CreatedAtAction("GetAccount", new { id = account.AccountId }, account);
         }
 
-        // DELETE: api/BillDetail/5
+        // DELETE: api/Accounts/5
         [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteBillDetail(string id)
+        public async Task<IActionResult> DeleteAccount(string id)
         {
-            if (_context.BillDetails == null)
+            if (_context.Accounts == null)
             {
                 return NotFound();
             }
-            var billDetail = await _context.BillDetails.FindAsync(id);
-            if (billDetail == null)
+            var account = await _context.Accounts.FindAsync(id);
+            if (account == null)
             {
                 return NotFound();
             }
 
-            _context.BillDetails.Remove(billDetail);
+            _context.Accounts.Remove(account);
             await _context.SaveChangesAsync();
 
             return NoContent();
         }
 
-        private bool BillDetailExists(string id)
+        private bool AccountExists(string id)
         {
-            return (_context.BillDetails?.Any(e => e.BillId == id)).GetValueOrDefault();
+            return (_context.Accounts?.Any(e => e.AccountId == id)).GetValueOrDefault();
         }
     }
 }

@@ -7,9 +7,9 @@
         public string CustomerPhone { get; set; }
         public string DeliveryAddress { get; set; }
         public string Note { get; set; }
-        public List<BillItemDto> lstProductBill { get; set; }
+        public List<BillItemDTO> lstProductBill { get; set; }
     }
-    public class BillItemDto
+    public class BillItemDTO
     {
         public string ProductID { get; set; }
         public string ProductName { get; set; }
