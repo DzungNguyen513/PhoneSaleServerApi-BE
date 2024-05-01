@@ -186,17 +186,7 @@ namespace PhoneSaleAPI.Controllers
                         Status = productDTO.Status
                     };
 
-                    var productDetail = new ProductDetail
-                    {
-                        ProductId = newProductId,
-                        ColorName = productDTO.ColorName,
-                        StorageGb = productDTO.StorageGB,
-                        Amount = productDTO.Amount
-                    };
-
                     _context.Products.Add(product);
-                    await _context.SaveChangesAsync();
-                    _context.ProductDetails.Add(productDetail);
                     await _context.SaveChangesAsync();
 
 
@@ -257,6 +247,36 @@ namespace PhoneSaleAPI.Controllers
             return productDetails;
         }
 
+        [HttpPost("CreateProductDetails")]
+        public async Task<IActionResult> CreateProductDetail(ProductDetailDTO productDTO)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
 
+            try
+            {
+                // Tạo một đối tượng Product từ dữ liệu DTO
+                var product = new ProductDetail
+                {
+                    ProductId = productDTO.ProductId,
+                    ColorName = productDTO.ColorName,
+                    StorageGb = productDTO.StorageGb,
+                    Amount = productDTO.Amount
+                    // Khởi tạo các trường dữ liệu khác của sản phẩm ở đây nếu cần
+                };
+
+                // Thêm sản phẩm mới vào cơ sở dữ liệu
+                _context.ProductDetails.Add(product);
+                await _context.SaveChangesAsync();
+
+                return Ok(new { product.ProductId });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
+        }
     }
 }

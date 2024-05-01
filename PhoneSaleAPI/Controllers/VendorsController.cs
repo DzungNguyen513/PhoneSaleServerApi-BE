@@ -24,10 +24,10 @@ namespace PhoneSaleAPI.Controllers
         [HttpGet("GetVendors")]
         public async Task<ActionResult<IEnumerable<Vendor>>> GetVendors()
         {
-          if (_context.Vendors == null)
-          {
-              return NotFound();
-          }
+            if (_context.Vendors == null)
+            {
+                return NotFound();
+            }
             return await _context.Vendors.ToListAsync();
         }
 
@@ -35,10 +35,10 @@ namespace PhoneSaleAPI.Controllers
         [HttpGet("{id}")]
         public async Task<ActionResult<Vendor>> GetVendor(string id)
         {
-          if (_context.Vendors == null)
-          {
-              return NotFound();
-          }
+            if (_context.Vendors == null)
+            {
+                return NotFound();
+            }
             var vendor = await _context.Vendors.FindAsync(id);
 
             if (vendor == null)
@@ -85,10 +85,10 @@ namespace PhoneSaleAPI.Controllers
         [HttpPost]
         public async Task<ActionResult<Vendor>> PostVendor(Vendor vendor)
         {
-          if (_context.Vendors == null)
-          {
-              return Problem("Entity set 'PhoneManagementContext.Vendors'  is null.");
-          }
+            if (_context.Vendors == null)
+            {
+                return Problem("Entity set 'PhoneManagementContext.Vendors'  is null.");
+            }
             _context.Vendors.Add(vendor);
             try
             {
@@ -129,9 +129,60 @@ namespace PhoneSaleAPI.Controllers
             return NoContent();
         }
 
-        private bool VendorExists(string id)
+        [HttpPost("AdminCreateVendor")]
+        public async Task<ActionResult<Vendor>> AdminCreateVendor(Vendor vendor)
         {
-            return (_context.Vendors?.Any(e => e.VendorId == id)).GetValueOrDefault();
+            if (_context.Vendors == null)
+            {
+                return Problem("Entity set 'PhoneManagementContext.Vendors' is null.");
+            }
+
+            // Auto-generate VendorID
+            vendor.VendorId = GenerateVendorId(); // Assume this method generates a unique VendorID
+
+            _context.Vendors.Add(vendor);
+            try
+            {
+                await _context.SaveChangesAsync();
+            }
+            catch (DbUpdateException)
+            {
+                if (VendorExists(vendor.VendorId))
+                {
+                    return Conflict();
+                }
+                else
+                {
+                    throw;
+                }
+            }
+
+            return CreatedAtAction("GetVendor", new { id = vendor.VendorId }, vendor);
         }
+
+        // Method to generate a unique VendorID
+        private string GenerateVendorId()
+        {
+            // Find the maximum existing VendorID
+            var maxVendorId = _context.Vendors
+                                    .Select(v => v.VendorId)
+                                    .Where(id => id.StartsWith("VD"))
+                                    .Select(id => int.Parse(id.Substring(2))) // Extract the numeric part
+                                    .DefaultIfEmpty(0) // If no existing IDs, default to 0
+                                    .Max();
+
+            // Increment and format the new VendorID
+            var newIdNumber = maxVendorId + 1;
+            var newVendorId = $"VD{newIdNumber.ToString("D3")}"; // D3 ensures it's zero-padded to 3 digits
+
+            return newVendorId;
+        }
+
+        // Method to check if a vendor with the given VendorID exists
+        private bool VendorExists(string vendorId)
+        {
+            return _context.Vendors.Any(v => v.VendorId == vendorId);
+        }
+
     }
 }
