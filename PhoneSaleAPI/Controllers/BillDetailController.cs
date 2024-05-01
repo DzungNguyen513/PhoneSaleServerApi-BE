@@ -20,7 +20,7 @@ namespace PhoneSaleAPI.Controllers
             _context = context;
         }
 
-        // GET: api/BillDetail
+        // GET: api/BillDetailKhanhDaSua
         [HttpGet]
         public async Task<ActionResult<IEnumerable<BillDetail>>> GetBillDetails()
         {
