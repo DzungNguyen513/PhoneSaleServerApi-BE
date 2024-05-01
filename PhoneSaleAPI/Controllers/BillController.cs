@@ -166,7 +166,7 @@ namespace PhoneSaleAPI.Controllers
                     return NotFound($"Không tìm thấy sản phẩm với ID: {detail.ProductID}");
                 }
 
-                var discount = product.Discount; 
+                var discount = product.Discount;
 
                 var billDetail = new BillDetail
                 {
@@ -176,12 +176,34 @@ namespace PhoneSaleAPI.Controllers
                     StorageGb = detail.StorageGB,
                     Amount = detail.Amount,
                     Price = detail.Price,
-                    Discount = discount, 
+                    Discount = discount,
                     Total = detail.Amount * detail.Price
                 };
 
                 _context.BillDetails.Add(billDetail);
                 bill.TotalBill += billDetail.Total;
+
+                var productDetail = await _context.ProductDetails
+                    .FirstOrDefaultAsync(pd => pd.ProductId == detail.ProductID
+                                            && pd.ColorName == detail.ColorName
+                                            && pd.StorageGb == detail.StorageGB);
+
+                if (productDetail != null)
+                {                  
+                    if (productDetail.Amount >= detail.Amount)
+                    {
+                        productDetail.Amount -= detail.Amount;
+                        _context.ProductDetails.Update(productDetail);
+                    }
+                    else
+                    {
+                        return BadRequest($"Số lượng sản phẩm {productDetail.ProductId} - {productDetail.ColorName} - {productDetail.StorageGb} không đủ");
+                    }
+                }
+                else
+                {
+                    return NotFound($"Không tìm thấy ProductDetail cho sản phẩm {detail.ProductID}, màu {detail.ColorName}, và dung lượng {detail.StorageGB}");
+                }
             }
 
             await _context.SaveChangesAsync();
@@ -190,16 +212,135 @@ namespace PhoneSaleAPI.Controllers
 
         private string GenerateBillId()
         {
-            var lastBill = _context.Bills.OrderByDescending(b => b.BillId).FirstOrDefault();
+            DateTime currentDate = DateTime.Now;
+
+            string billId = $"BILL{currentDate.Day:00}{currentDate.Month:00}{currentDate.Year % 100:00}";
+
+            var lastBill = _context.Bills
+                .Where(b => b.BillId.StartsWith(billId))
+                .OrderByDescending(b => b.BillId)
+                .FirstOrDefault();
 
             if (lastBill == null)
             {
-                return "Bill001";
+                return $"{billId}0001";
             }
 
-            string lastId = lastBill.BillId.Substring(4); 
-            int newId = int.Parse(lastId) + 1;
-            return $"Bill{newId.ToString().PadLeft(3, '0')}";
+            int newId = int.Parse(lastBill.BillId.Substring(10)) + 1;
+            string newIdString = newId.ToString().PadLeft(4, '0');
+            return $"{billId}{newIdString}";
+        }
+
+        [HttpGet("GetBillOfCustomer/{customerId}")]
+        public async Task<ActionResult> GetBillOfCustomer(string customerId, BillStatus status)
+        {
+            try
+            {
+                var billInfo = await _context.Bills
+                    .Where(b => b.CustomerId == customerId && b.Status == status)
+                    .Select(b => new
+                    {
+                        b.BillId,
+                        DateBill = DateTimeOffset.Parse(b.DateBill.ToString()).ToString("yyyy-MM-dd HH:mm"),
+                        TotalProducts = _context.BillDetails.Count(d => d.BillId == b.BillId),
+                        b.TotalBill,
+                        status = b.Status
+                    })
+                    .ToListAsync();
+
+                return Ok(billInfo);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Lỗi: {ex.Message}");
+            }
+        }
+
+        [HttpGet("GetBillDetail/{billId}")]
+        public async Task<ActionResult<BillSummaryDTO>> GetBillDetails(string billId)
+        {
+            var bill = await _context.Bills
+                .Include(b => b.Customer)
+                .Include(b => b.BillDetails)
+                    .ThenInclude(bd => bd.Product)
+                    .ThenInclude(p => p.ProductImages)
+                .Include(b => b.BillDetails)
+                    .ThenInclude(bd => bd.ColorNameNavigation)  
+                .Include(b => b.BillDetails)
+                    .ThenInclude(bd => bd.StorageGbNavigation)
+                .FirstOrDefaultAsync(b => b.BillId == billId);
+
+            if (bill == null)
+            {
+                return NotFound("Bill not found!");
+            }
+
+            var products = bill.BillDetails
+                .Where(bd => bd.Product != null)
+                .Select(bd => {
+                    
+                    var color = bd.ColorNameNavigation;
+                    var storage = bd.StorageGbNavigation;
+                    var product = bd.Product;
+
+                    return new BillItemDTO
+                    {
+                        ProductID = product.ProductId,
+                        ProductName = product.ProductName,
+                        OriginalPrice = (int)(product.Price + (color?.ColorPrice ?? 0) + (storage?.StoragePrice ?? 0)),
+                        DiscountedPrice = (int)bd.Price,
+                        ColorName = color?.ColorName,
+                        StorageGB = (int)(storage?.StorageGb),
+                        Amount = (int)bd.Amount,
+                        Img = bd.Product.ProductImages
+                                    .Where(pi => pi.ColorName == bd.ColorName)
+                                    .Select(pi => pi.ImagePath)
+                                    .FirstOrDefault() ?? "default.jpg"
+                    };
+                }).ToList();
+
+            var billSummary = new BillSummaryDTO
+            {
+                BillId = bill.BillId,
+                CustomerName = bill.Customer.CustomerName,
+                CustomerPhone = bill.Customer.PhoneNumber,
+                DeliveryAddress = bill.DeliveryAddress,
+                Note = bill.Note,
+                lstProductBill = products
+            };
+            return Ok(billSummary);
+        }
+        [HttpGet("GetBillByID")]
+        public async Task<ActionResult> GetBillByID(string customerId, string query)
+        {
+            try
+            {
+                var bills = await _context.Bills
+                    .Where(b => b.CustomerId == customerId)
+                    .SelectMany(b => b.BillDetails)
+                    .Where(bd => bd.Bill.BillId.Contains(query) || bd.Product.ProductName.Contains(query))
+                    .Select(bd => new
+                    {
+                        bd.Bill.BillId,
+                        DateBill = DateTimeOffset.Parse(bd.Bill.DateBill.ToString()).ToString("yyyy-MM-dd HH:mm"),
+                        TotalProducts = _context.BillDetails.Count(d => d.BillId == bd.Bill.BillId),
+                        bd.Bill.TotalBill,
+                        bd.Bill.Status
+                    })
+                    .Distinct()
+                    .ToListAsync();
+
+                if (!bills.Any())
+                {
+                    return NotFound("");
+                }
+
+                return Ok(bills);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
         }
 
     }
