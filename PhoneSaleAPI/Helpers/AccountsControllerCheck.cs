@@ -11,11 +11,11 @@ namespace PhoneSaleAPI.Helpers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class AccountsController : ControllerBase
+    public class AccountsControllerCheck : ControllerBase
     {
         private readonly PhoneManagementContext _context;
 
-        public AccountsController(PhoneManagementContext context)
+        public AccountsControllerCheck(PhoneManagementContext context)
         {
             _context = context;
         }
@@ -80,9 +80,10 @@ namespace PhoneSaleAPI.Helpers
             return NoContent();
         }
 
+        // Trùng nên bỏ
         // POST: api/Accounts
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPost]
+        /* [HttpPost]
         public async Task<ActionResult<Account>> PostAccount(Account account)
         {
           if (_context.Accounts == null)
@@ -107,7 +108,7 @@ namespace PhoneSaleAPI.Helpers
             }
 
             return CreatedAtAction("GetAccount", new { id = account.Username }, account);
-        }
+        }*/
 
         // DELETE: api/Accounts/5
         [HttpDelete("{id}")]

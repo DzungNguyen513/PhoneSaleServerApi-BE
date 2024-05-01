@@ -1,10 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Cryptography;
+using System.Text;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using PhoneSaleAPI.DTO.Account;
 using PhoneSaleAPI.Models;
 
 namespace PhoneSaleAPI.Controllers
@@ -132,6 +135,65 @@ namespace PhoneSaleAPI.Controllers
         private bool AccountExists(string id)
         {
             return (_context.Accounts?.Any(e => e.AccountId == id)).GetValueOrDefault();
+        }
+
+        // POST: api/Account
+        [HttpPost("CreateAccount")]
+        public async Task<IActionResult> CreateAccount([FromBody] CreateAccount model)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(new { success = false, message = "Dữ liệu không hợp lệ" });
+            }
+
+            var existingAccount = await _context.Accounts.FirstOrDefaultAsync(c => c.Username == model.Username);
+            if (existingAccount != null)
+            {
+                return Conflict(new { success = false, message = "Tài khoản đã tồn tại trong hệ thống" });
+            }
+
+            var hashedPassword = HashPassword(model.Password);
+
+            var newAccountId = await GenerateNewAccountId();
+
+            Account account = new Account
+            {
+                AccountId = newAccountId,
+                Username = model.Username,
+                Password = hashedPassword,
+                Status = 1
+            };
+
+            _context.Accounts.Add(account);
+            await _context.SaveChangesAsync();
+
+            return Ok(new { success = true, message = "Đăng ký thành công", accountId = newAccountId });
+        }
+
+        private async Task<string> GenerateNewAccountId()
+        {
+            var lastAccountId = await _context.Accounts
+                 .OrderByDescending(c => c.AccountId)
+                 .Select(c => c.AccountId)
+                 .FirstOrDefaultAsync();
+
+            int nextIdNumber = 1;
+            if (lastAccountId != null && lastAccountId.StartsWith("ACC"))
+            {
+                int.TryParse(lastAccountId.Substring(3), out nextIdNumber);
+                nextIdNumber++;
+            }
+
+            return $"ACC{nextIdNumber:000}";
+        }
+
+        private string HashPassword(string password)
+        {
+            using (var sha256 = SHA256.Create())
+            {
+                var hashedBytes = sha256.ComputeHash(Encoding.UTF8.GetBytes(password));
+                return BitConverter.ToString(hashedBytes).Replace("-", "").ToLower();
+            }
         }
     }
 }
