@@ -608,7 +608,11 @@ namespace PhoneSaleAPI.Models
                     .HasMaxLength(30)
                     .HasColumnName("CustomerID");
 
+                entity.Property(e => e.Description).HasMaxLength(255);
+
                 entity.Property(e => e.IsActive).HasDefaultValueSql("((1))");
+
+                entity.Property(e => e.NotificationName).HasMaxLength(255);
 
                 entity.Property(e => e.NotificationType).HasMaxLength(50);
 
