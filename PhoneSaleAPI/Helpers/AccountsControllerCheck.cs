@@ -7,28 +7,27 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using PhoneSaleAPI.Models;
 
-namespace PhoneSaleAPI.Controllers
+namespace PhoneSaleAPI.Helpers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class AccountsController : ControllerBase
+    public class AccountsControllerCheck : ControllerBase
     {
         private readonly PhoneManagementContext _context;
 
-        public AccountsController(PhoneManagementContext context)
+        public AccountsControllerCheck(PhoneManagementContext context)
         {
             _context = context;
         }
 
         // GET: api/Accounts
-        [HttpGet("GetAllAccounts")]
+        [HttpGet]
         public async Task<ActionResult<IEnumerable<Account>>> GetAccounts()
         {
-
-            if (_context.Accounts == null)
-            {
-                return NotFound();
-            }
+          if (_context.Accounts == null)
+          {
+              return NotFound();
+          }
             return await _context.Accounts.ToListAsync();
         }
 
@@ -36,11 +35,10 @@ namespace PhoneSaleAPI.Controllers
         [HttpGet("{id}")]
         public async Task<ActionResult<Account>> GetAccount(string id)
         {
-
-            if (_context.Accounts == null)
-            {
-                return NotFound();
-            }
+          if (_context.Accounts == null)
+          {
+              return NotFound();
+          }
             var account = await _context.Accounts.FindAsync(id);
 
             if (account == null)
@@ -56,7 +54,7 @@ namespace PhoneSaleAPI.Controllers
         [HttpPut("{id}")]
         public async Task<IActionResult> PutAccount(string id, Account account)
         {
-            if (id != account.AccountId)
+            if (id != account.Username)
             {
                 return BadRequest();
             }
@@ -82,15 +80,16 @@ namespace PhoneSaleAPI.Controllers
             return NoContent();
         }
 
+        // Trùng nên bỏ
         // POST: api/Accounts
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPost]
+        /* [HttpPost]
         public async Task<ActionResult<Account>> PostAccount(Account account)
         {
-            if (_context.Accounts == null)
-            {
-                return Problem("Entity set 'PhoneManagementContext.Accounts'  is null.");
-            }
+          if (_context.Accounts == null)
+          {
+              return Problem("Entity set 'PhoneManagementContext.Accounts'  is null.");
+          }
             _context.Accounts.Add(account);
             try
             {
@@ -98,7 +97,7 @@ namespace PhoneSaleAPI.Controllers
             }
             catch (DbUpdateException)
             {
-                if (AccountExists(account.AccountId))
+                if (AccountExists(account.Username))
                 {
                     return Conflict();
                 }
@@ -108,8 +107,8 @@ namespace PhoneSaleAPI.Controllers
                 }
             }
 
-            return CreatedAtAction("GetAccount", new { id = account.AccountId }, account);
-        }
+            return CreatedAtAction("GetAccount", new { id = account.Username }, account);
+        }*/
 
         // DELETE: api/Accounts/5
         [HttpDelete("{id}")]
@@ -133,7 +132,7 @@ namespace PhoneSaleAPI.Controllers
 
         private bool AccountExists(string id)
         {
-            return (_context.Accounts?.Any(e => e.AccountId == id)).GetValueOrDefault();
+            return (_context.Accounts?.Any(e => e.Username == id)).GetValueOrDefault();
         }
     }
 }

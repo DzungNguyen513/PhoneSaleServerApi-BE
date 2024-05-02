@@ -1,46 +1,47 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Cryptography;
+using System.Text;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using PhoneSaleAPI.DTO.Account;
 using PhoneSaleAPI.Models;
 
 namespace PhoneSaleAPI.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class AccountsController : ControllerBase
+    public class AccountController : ControllerBase
     {
         private readonly PhoneManagementContext _context;
 
-        public AccountsController(PhoneManagementContext context)
+        public AccountController(PhoneManagementContext context)
         {
             _context = context;
         }
 
-        // GET: api/Accounts
-        [HttpGet("GetAllAccounts")]
+        // GET: api/Account
+        [HttpGet]
         public async Task<ActionResult<IEnumerable<Account>>> GetAccounts()
         {
-
-            if (_context.Accounts == null)
-            {
-                return NotFound();
-            }
+          if (_context.Accounts == null)
+          {
+              return NotFound();
+          }
             return await _context.Accounts.ToListAsync();
         }
 
-        // GET: api/Accounts/5
+        // GET: api/Account/5
         [HttpGet("{id}")]
         public async Task<ActionResult<Account>> GetAccount(string id)
         {
-
-            if (_context.Accounts == null)
-            {
-                return NotFound();
-            }
+          if (_context.Accounts == null)
+          {
+              return NotFound();
+          }
             var account = await _context.Accounts.FindAsync(id);
 
             if (account == null)
@@ -51,7 +52,7 @@ namespace PhoneSaleAPI.Controllers
             return account;
         }
 
-        // PUT: api/Accounts/5
+        // PUT: api/Account/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
         public async Task<IActionResult> PutAccount(string id, Account account)
@@ -82,7 +83,7 @@ namespace PhoneSaleAPI.Controllers
             return NoContent();
         }
 
-        // POST: api/Accounts
+        // POST: api/Account
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
         public async Task<ActionResult<Account>> PostAccount(Account account)
@@ -98,7 +99,7 @@ namespace PhoneSaleAPI.Controllers
             }
             catch (DbUpdateException)
             {
-                if (AccountExists(account.AccountId))
+                if (AccountExists(account.Username))
                 {
                     return Conflict();
                 }
@@ -108,10 +109,10 @@ namespace PhoneSaleAPI.Controllers
                 }
             }
 
-            return CreatedAtAction("GetAccount", new { id = account.AccountId }, account);
+            return CreatedAtAction("GetAccount", new { id = account.Username }, account);
         }
 
-        // DELETE: api/Accounts/5
+        // DELETE: api/Account/5
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteAccount(string id)
         {
@@ -134,6 +135,65 @@ namespace PhoneSaleAPI.Controllers
         private bool AccountExists(string id)
         {
             return (_context.Accounts?.Any(e => e.AccountId == id)).GetValueOrDefault();
+        }
+
+        // POST: api/Account
+        [HttpPost("CreateAccount")]
+        public async Task<IActionResult> CreateAccount([FromBody] CreateAccount model)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(new { success = false, message = "Dữ liệu không hợp lệ" });
+            }
+
+            var existingAccount = await _context.Accounts.FirstOrDefaultAsync(c => c.Username == model.Username);
+            if (existingAccount != null)
+            {
+                return Conflict(new { success = false, message = "Tài khoản đã tồn tại trong hệ thống" });
+            }
+
+            var hashedPassword = HashPassword(model.Password);
+
+            var newAccountId = await GenerateNewAccountId();
+
+            Account account = new Account
+            {
+                AccountId = newAccountId,
+                Username = model.Username,
+                Password = hashedPassword,
+                Status = 1
+            };
+
+            _context.Accounts.Add(account);
+            await _context.SaveChangesAsync();
+
+            return Ok(new { success = true, message = "Đăng ký thành công", accountId = newAccountId });
+        }
+
+        private async Task<string> GenerateNewAccountId()
+        {
+            var lastAccountId = await _context.Accounts
+                 .OrderByDescending(c => c.AccountId)
+                 .Select(c => c.AccountId)
+                 .FirstOrDefaultAsync();
+
+            int nextIdNumber = 1;
+            if (lastAccountId != null && lastAccountId.StartsWith("ACC"))
+            {
+                int.TryParse(lastAccountId.Substring(3), out nextIdNumber);
+                nextIdNumber++;
+            }
+
+            return $"ACC{nextIdNumber:000}";
+        }
+
+        private string HashPassword(string password)
+        {
+            using (var sha256 = SHA256.Create())
+            {
+                var hashedBytes = sha256.ComputeHash(Encoding.UTF8.GetBytes(password));
+                return BitConverter.ToString(hashedBytes).Replace("-", "").ToLower();
+            }
         }
     }
 }

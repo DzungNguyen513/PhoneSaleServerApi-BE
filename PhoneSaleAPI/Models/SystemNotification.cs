@@ -10,13 +10,15 @@ namespace PhoneSaleAPI.Models
             SystemNotificationReads = new HashSet<SystemNotificationRead>();
         }
 
-        public int NotificationId { get; set; }
+        public string NotificationId { get; set; } = null!;
         public string? Title { get; set; }
         public string? Message { get; set; }
         public string? NotificationType { get; set; }
+        public string? CustomerId { get; set; }
         public DateTime? CreatedAt { get; set; }
         public bool? IsActive { get; set; }
 
+        public virtual Customer? Customer { get; set; }
         public virtual ICollection<SystemNotificationRead> SystemNotificationReads { get; set; }
     }
 }

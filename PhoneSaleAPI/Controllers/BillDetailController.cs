@@ -24,30 +24,32 @@ namespace PhoneSaleAPI.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<BillDetail>>> GetBillDetails()
         {
-          if (_context.BillDetails == null)
-          {
-              return NotFound();
-          }
+            if (_context.BillDetails == null)
+            {
+                return NotFound();
+            }
             return await _context.BillDetails.ToListAsync();
         }
 
         // GET: api/BillDetail/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<BillDetail>> GetBillDetail(string id)
+        public async Task<ActionResult<IEnumerable<BillDetail>>> GetBillDetail(string id)
         {
-          if (_context.BillDetails == null)
-          {
-              return NotFound();
-          }
-            var billDetail = await _context.BillDetails.FindAsync(id);
-
-            if (billDetail == null)
+            if (_context.BillDetails == null)
             {
                 return NotFound();
             }
 
-            return billDetail;
+            var billDetails = await _context.BillDetails.Where(b => b.BillId == id).ToListAsync();
+
+            if (billDetails == null || billDetails.Count == 0)
+            {
+                return NotFound();
+            }
+
+            return billDetails;
         }
+
 
         // PUT: api/BillDetail/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
@@ -85,10 +87,10 @@ namespace PhoneSaleAPI.Controllers
         [HttpPost]
         public async Task<ActionResult<BillDetail>> PostBillDetail(BillDetail billDetail)
         {
-          if (_context.BillDetails == null)
-          {
-              return Problem("Entity set 'PhoneManagementContext.BillDetails'  is null.");
-          }
+            if (_context.BillDetails == null)
+            {
+                return Problem("Entity set 'PhoneManagementContext.BillDetails'  is null.");
+            }
             _context.BillDetails.Add(billDetail);
             try
             {
