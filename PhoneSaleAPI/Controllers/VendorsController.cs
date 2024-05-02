@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using PhoneSaleAPI.DTO.Vendor;
 using PhoneSaleAPI.Models;
 
 namespace PhoneSaleAPI.Controllers
@@ -130,7 +131,7 @@ namespace PhoneSaleAPI.Controllers
         }
 
         [HttpPost("AdminCreateVendor")]
-        public async Task<ActionResult<Vendor>> AdminCreateVendor(Vendor vendor)
+        public async Task<ActionResult<Vendor>> AdminCreateVendor(CreateVendor vendor)
         {
             if (_context.Vendors == null)
             {
@@ -138,16 +139,25 @@ namespace PhoneSaleAPI.Controllers
             }
 
             // Auto-generate VendorID
-            vendor.VendorId = GenerateVendorId(); // Assume this method generates a unique VendorID
+            var newVendorId = GenerateVendorId(); // Assume this method generates a unique VendorID
 
-            _context.Vendors.Add(vendor);
+            var newVendor = new Vendor
+            {
+                VendorId = newVendorId,
+                VendorName = vendor.VendorName,
+                Address = vendor.Address,
+                PhoneNumber = vendor.PhoneNumber,
+                Status = vendor.Status
+            };
+
+            _context.Vendors.Add(newVendor);
             try
             {
                 await _context.SaveChangesAsync();
             }
             catch (DbUpdateException)
             {
-                if (VendorExists(vendor.VendorId))
+                if (VendorExists(newVendorId))
                 {
                     return Conflict();
                 }
@@ -157,8 +167,9 @@ namespace PhoneSaleAPI.Controllers
                 }
             }
 
-            return CreatedAtAction("GetVendor", new { id = vendor.VendorId }, vendor);
+            return CreatedAtAction("GetVendor", new { id = newVendorId }, vendor);
         }
+
 
         // Method to generate a unique VendorID
         private string GenerateVendorId()
@@ -167,6 +178,7 @@ namespace PhoneSaleAPI.Controllers
             var maxVendorId = _context.Vendors
                                     .Select(v => v.VendorId)
                                     .Where(id => id.StartsWith("VD"))
+                                    .ToList() // Bring data to client-side
                                     .Select(id => int.Parse(id.Substring(2))) // Extract the numeric part
                                     .DefaultIfEmpty(0) // If no existing IDs, default to 0
                                     .Max();
