@@ -11,7 +11,9 @@ namespace PhoneSaleAPI.Models
         }
 
         public string NotificationId { get; set; } = null!;
+        public string? NotificationName { get; set; }
         public string? Title { get; set; }
+        public string? Description { get; set; }
         public string? Message { get; set; }
         public string? NotificationType { get; set; }
         public string? CustomerId { get; set; }

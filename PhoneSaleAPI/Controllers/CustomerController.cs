@@ -319,5 +319,27 @@ namespace PhoneSaleAPI.Controllers
 
             return Ok(new { success = true, message = "Đổi mật khẩu thành công" });
         }
+
+        [HttpPut("updateCustomerStatus/{custommerId}")]
+        public async Task<IActionResult> UpdateAccountStatus(string custommerId, [FromBody] CustomerStatusUpdate statusUpdate)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            var customer = await _context.Customers.FindAsync(custommerId);
+            if (customer == null)
+            {
+                return NotFound($"Không tìm thấy khách hàng có ID {custommerId}");
+            }
+
+            // Cập nhật trạng thái
+            customer.Status = statusUpdate.Status;
+            _context.Customers.Update(customer);
+            await _context.SaveChangesAsync();
+
+            return Ok(customer);
+        }
     }
 }

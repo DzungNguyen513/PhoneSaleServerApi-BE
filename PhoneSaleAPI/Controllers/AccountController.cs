@@ -24,7 +24,7 @@ namespace PhoneSaleAPI.Controllers
         }
 
         // GET: api/Account
-        [HttpGet]
+        [HttpGet("GetAllAccounts")]
         public async Task<ActionResult<IEnumerable<Account>>> GetAccounts()
         {
           if (_context.Accounts == null)
