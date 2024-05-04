@@ -12,6 +12,7 @@ namespace PhoneSaleAPI.Models
             ChatSessions = new HashSet<ChatSession>();
             ProductReviews = new HashSet<ProductReview>();
             SystemNotificationReads = new HashSet<SystemNotificationRead>();
+            SystemNotifications = new HashSet<SystemNotification>();
         }
 
         public string CustomerId { get; set; } = null!;
@@ -20,7 +21,7 @@ namespace PhoneSaleAPI.Models
         public string? Password { get; set; }
         public string? PhoneNumber { get; set; }
         public string? Address { get; set; }
-        public bool? Gender { get; set; }
+        public int? Gender { get; set; }
         public int? Status { get; set; }
         public DateTime? LastLogin { get; set; }
         public DateTime? CreateAt { get; set; }
@@ -32,5 +33,6 @@ namespace PhoneSaleAPI.Models
         public virtual ICollection<ChatSession> ChatSessions { get; set; }
         public virtual ICollection<ProductReview> ProductReviews { get; set; }
         public virtual ICollection<SystemNotificationRead> SystemNotificationReads { get; set; }
+        public virtual ICollection<SystemNotification> SystemNotifications { get; set; }
     }
 }

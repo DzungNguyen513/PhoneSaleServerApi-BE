@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using PhoneSaleAPI.DTO.Bill;
 
 namespace PhoneSaleAPI.Models
 {
@@ -16,7 +17,7 @@ namespace PhoneSaleAPI.Models
         public string? DeliveryAddress { get; set; }
         public string? CustomerPhone { get; set; }
         public DateTime? DateBill { get; set; }
-        public int? Status { get; set; }
+        public BillStatus Status { get; set; }
         public string? Note { get; set; }
         public int? TotalBill { get; set; }
         public DateTime? UpdateAt { get; set; }

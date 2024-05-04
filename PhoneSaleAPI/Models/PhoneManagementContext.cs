@@ -41,7 +41,7 @@ namespace PhoneSaleAPI.Models
             if (!optionsBuilder.IsConfigured)
             {
 #warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see http://go.microsoft.com/fwlink/?LinkId=723263.
-                optionsBuilder.UseSqlServer("Server=DESKTOP-SVVHT2F\\SQLEXPRESS;Database=PhoneManagement;Integrated Security=True;TrustServerCertificate=True;");
+                optionsBuilder.UseSqlServer("Server=WAVYZ\\SQLEXPRESS;Database=PhoneManagement;Integrated Security=True;TrustServerCertificate=True;");
             }
         }
 
@@ -51,7 +51,7 @@ namespace PhoneSaleAPI.Models
             {
                 entity.ToTable("Account");
 
-                entity.HasIndex(e => e.Username, "UQ__Account__536C85E48DE8D5F2")
+                entity.HasIndex(e => e.Username, "UQ__Account__536C85E4A6E90FB6")
                     .IsUnique();
 
                 entity.Property(e => e.AccountId)
@@ -178,7 +178,7 @@ namespace PhoneSaleAPI.Models
             modelBuilder.Entity<ChatMessage>(entity =>
             {
                 entity.HasKey(e => e.MessageId)
-                    .HasName("PK__ChatMess__C87C037C35A860B2");
+                    .HasName("PK__ChatMess__C87C037C822CE53B");
 
                 entity.ToTable("ChatMessage");
 
@@ -221,7 +221,7 @@ namespace PhoneSaleAPI.Models
             modelBuilder.Entity<ChatSession>(entity =>
             {
                 entity.HasKey(e => e.SessionId)
-                    .HasName("PK__ChatSess__C9F49270EE7DB725");
+                    .HasName("PK__ChatSess__C9F49270B0FF3D10");
 
                 entity.ToTable("ChatSession");
 
@@ -261,7 +261,7 @@ namespace PhoneSaleAPI.Models
             modelBuilder.Entity<Color>(entity =>
             {
                 entity.HasKey(e => e.ColorName)
-                    .HasName("PK__Color__C71A5A7AA3D36897");
+                    .HasName("PK__Color__C71A5A7A350B866E");
 
                 entity.ToTable("Color");
 
@@ -282,7 +282,7 @@ namespace PhoneSaleAPI.Models
             {
                 entity.ToTable("Customer");
 
-                entity.HasIndex(e => e.Email, "UQ__Customer__A9D10534A925B925")
+                entity.HasIndex(e => e.Email, "UQ__Customer__A9D1053407D4A1B1")
                     .IsUnique();
 
                 entity.Property(e => e.CustomerId)
@@ -492,7 +492,7 @@ namespace PhoneSaleAPI.Models
             {
                 entity.ToTable("ShoppingCart");
 
-                entity.HasIndex(e => e.CustomerId, "UQ__Shopping__A4AE64B971324A2C")
+                entity.HasIndex(e => e.CustomerId, "UQ__Shopping__A4AE64B9F1CC7FE3")
                     .IsUnique();
 
                 entity.Property(e => e.ShoppingCartId)
@@ -572,7 +572,7 @@ namespace PhoneSaleAPI.Models
             modelBuilder.Entity<Storage>(entity =>
             {
                 entity.HasKey(e => e.StorageGb)
-                    .HasName("PK__Storage__8A246E77BE58073A");
+                    .HasName("PK__Storage__8A246E77E733596E");
 
                 entity.ToTable("Storage");
 
@@ -592,41 +592,56 @@ namespace PhoneSaleAPI.Models
             modelBuilder.Entity<SystemNotification>(entity =>
             {
                 entity.HasKey(e => e.NotificationId)
-                    .HasName("PK__SystemNo__20CF2E32156D7A45");
+                    .HasName("PK__SystemNo__20CF2E32C3EACE75");
 
                 entity.ToTable("SystemNotification");
 
                 entity.Property(e => e.NotificationId)
-                    .ValueGeneratedNever()
+                    .HasMaxLength(30)
                     .HasColumnName("NotificationID");
 
                 entity.Property(e => e.CreatedAt)
                     .HasColumnType("datetime")
                     .HasDefaultValueSql("(getdate())");
 
+                entity.Property(e => e.CustomerId)
+                    .HasMaxLength(30)
+                    .HasColumnName("CustomerID");
+
+                entity.Property(e => e.Description).HasMaxLength(255);
+
                 entity.Property(e => e.IsActive).HasDefaultValueSql("((1))");
+
+                entity.Property(e => e.NotificationName).HasMaxLength(255);
 
                 entity.Property(e => e.NotificationType).HasMaxLength(50);
 
                 entity.Property(e => e.Title).HasMaxLength(255);
+
+                entity.HasOne(d => d.Customer)
+                    .WithMany(p => p.SystemNotifications)
+                    .HasForeignKey(d => d.CustomerId)
+                    .HasConstraintName("FK_SystemNotification_CustomerID");
             });
 
             modelBuilder.Entity<SystemNotificationRead>(entity =>
             {
                 entity.HasKey(e => e.ReadId)
-                    .HasName("PK__SystemNo__1FABC84C6A998BCD");
+                    .HasName("PK__SystemNo__1FABC84C5FD950AC");
 
                 entity.ToTable("SystemNotificationRead");
 
                 entity.Property(e => e.ReadId)
-                    .ValueGeneratedNever()
+                    .HasMaxLength(30)
                     .HasColumnName("ReadID");
 
                 entity.Property(e => e.CustomerId)
                     .HasMaxLength(30)
                     .HasColumnName("CustomerID");
 
-                entity.Property(e => e.NotificationId).HasColumnName("NotificationID");
+                entity.Property(e => e.NotificationId)
+                    .HasMaxLength(30)
+                    .HasColumnName("NotificationID");
 
                 entity.Property(e => e.ReadAt)
                     .HasColumnType("datetime")

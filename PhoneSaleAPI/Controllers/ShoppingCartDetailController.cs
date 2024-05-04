@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using PhoneSaleAPI.DTO;
+using PhoneSaleAPI.DTO.ShoppingCart;
 using PhoneSaleAPI.Models;
 
 namespace PhoneSaleAPI.Controllers
@@ -29,20 +29,20 @@ namespace PhoneSaleAPI.Controllers
                                    join color in _context.Colors on cartDetail.ColorName equals color.ColorName
                                    join storage in _context.Storages on cartDetail.StorageGb equals storage.StorageGb
                                    join image in _context.ProductImages on new { product.ProductId, cartDetail.ColorName } equals new { image.ProductId, image.ColorName } into productImages
-                                   from pi in productImages.DefaultIfEmpty() 
+                                   from pi in productImages.DefaultIfEmpty()
                                    where cart.CustomerId == customerId
                                    select new CartItemDto
                                    {
                                        ShoppingCartId = cart.ShoppingCartId,
                                        ProductID = product.ProductId,
                                        ProductName = product.ProductName,
-                                       Price = (int)(product.Price + color.ColorPrice + storage.StoragePrice),
+                                       OriginalPrice = (int)(product.Price + color.ColorPrice + storage.StoragePrice),
+                                       DiscountedPrice = (int)((product.Price + color.ColorPrice + storage.StoragePrice) * (1 - (product.Discount / 100.0))),
                                        ColorName = cartDetail.ColorName,
                                        StorageGB = cartDetail.StorageGb,
                                        Amount = (int)cartDetail.Amount,
-                                       Img = pi != null ? pi.ImagePath : null 
+                                       Img = pi != null ? pi.ImagePath : null
                                    }).ToListAsync();
-
             if (!cartItems.Any())
             {
                 return NotFound();
@@ -50,8 +50,6 @@ namespace PhoneSaleAPI.Controllers
 
             return Ok(cartItems);
         }
-
-
 
         [HttpDelete("{shoppingCartId}/{productId}")]
         public async Task<IActionResult> DeleteProductFromCart(string shoppingCartId, string productId)

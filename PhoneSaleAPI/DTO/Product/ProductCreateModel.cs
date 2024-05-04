@@ -1,4 +1,4 @@
-﻿namespace PhoneSaleAPI.DTO
+﻿namespace PhoneSaleAPI.DTO.Product
 {
     public class ProductCreateModel
     {

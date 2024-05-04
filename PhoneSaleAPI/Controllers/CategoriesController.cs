@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using PhoneSaleAPI.DTO.Categories;
 using PhoneSaleAPI.Models;
 
 namespace PhoneSaleAPI.Controllers
@@ -21,6 +22,7 @@ namespace PhoneSaleAPI.Controllers
         }
 
         // GET: api/Categories
+
         [HttpGet("GetCategories")]
         public async Task<ActionResult<IEnumerable<Category>>> GetCategories()
         {
@@ -30,7 +32,6 @@ namespace PhoneSaleAPI.Controllers
           }
             return await _context.Categories.ToListAsync();
         }
-        
 
         // GET: api/Categories/5
         [HttpGet("{id}")]
@@ -129,6 +130,79 @@ namespace PhoneSaleAPI.Controllers
 
             return NoContent();
         }
+
+        [HttpPost("CreateCategory")]
+        public async Task<IActionResult> AddCategory([FromForm] CreateCategoriesDTO categoryDTO)
+        {
+            if (categoryDTO.CategoryImage != null)
+            {
+                var folderName = Path.Combine("Assets", "CategoriesImg");
+                var pathToSave = Path.Combine(Directory.GetCurrentDirectory(), folderName);
+
+                if (!Directory.Exists(pathToSave))
+                {
+                    Directory.CreateDirectory(pathToSave);
+                }
+
+                var fileName = Path.GetFileNameWithoutExtension(categoryDTO.CategoryImage.FileName);
+                var extension = Path.GetExtension(categoryDTO.CategoryImage.FileName);
+                fileName = $"{fileName}{extension}";
+                var fullPath = Path.Combine(pathToSave, fileName);
+
+                using (var stream = new FileStream(fullPath, FileMode.Create))
+                {
+                    await categoryDTO.CategoryImage.CopyToAsync(stream);
+                }
+
+                var lastCategory = await _context.Categories
+                                    .OrderByDescending(c => c.CategoryId)
+                                    .FirstOrDefaultAsync();
+
+                int lastNumber = 0;
+                if (lastCategory != null)
+                {
+                    var lastId = lastCategory.CategoryId.Replace("CT", "");
+                    lastNumber = int.Parse(lastId);
+                }
+
+                var newCategoryId = $"CT{lastNumber + 1:000}";
+
+                var newCategory = new Category
+                {
+                    CategoryId = newCategoryId,
+                    CategoryName = categoryDTO.CategoryName,
+                    CategoryImage = fileName,
+                    Status = categoryDTO.Status
+                };
+
+                _context.Categories.Add(newCategory);
+                await _context.SaveChangesAsync();
+
+                return Ok(new { fileName });
+            }
+            else
+            {
+                return BadRequest("Không tìm thấy hình ảnh danh mục để tải lên.");
+            }
+        }
+
+        [HttpGet("GetCategoryImage/{categoryId}")]
+        public async Task<IActionResult> GetCategoryImage(string categoryId)
+        {
+            var category = await _context.Categories.FirstOrDefaultAsync(c => c.CategoryId == categoryId);
+            if (category == null)
+            {
+                return NotFound(); // Trả về mã trạng thái 404 nếu không tìm thấy màu
+            }
+
+            var folderName = Path.Combine("Assets", "CategoriesImg");
+            var pathToLoad = Path.Combine(Directory.GetCurrentDirectory(), folderName, category.CategoryImage);
+            var imageBytes = await System.IO.File.ReadAllBytesAsync(pathToLoad);
+
+            return File(imageBytes, "image/jpeg"); // Trả về file ảnh với kiểu MIME là "image/jpeg"
+        }
+
+
 
         private bool CategoryExists(string id)
         {
