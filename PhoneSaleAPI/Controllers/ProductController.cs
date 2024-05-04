@@ -188,6 +188,65 @@ namespace PhoneSaleAPI.Controllers
 
             return Ok(productDetail);
         }
+        
+        [HttpGet("CalculateProductDetailPrice/{productId}")]
+        public async Task<ActionResult<int?>> CalculateProductDetailPrice(string productId, string? colorName, int? storageGb)
+        {
+            // Tìm kiếm thông tin về dung lượng và màu sắc (nếu được cung cấp)
+            var storage = storageGb != null ? await _context.Storages.FirstOrDefaultAsync(s => s.StorageGb == storageGb) : null;
+            var color = !string.IsNullOrEmpty(colorName) ? await _context.Colors.FirstOrDefaultAsync(c => c.ColorName == colorName) : null;
+
+            var product = await _context.Products.FirstOrDefaultAsync(p => p.ProductId == productId);
+
+            if (product == null)
+            {
+                return NotFound("Không tìm thấy thông tin sản phẩm.");
+            }
+
+            int totalPrice = (int)product.Price + (storage?.StoragePrice ?? 0) + (color?.ColorPrice ?? 0);
+
+            return Ok(totalPrice);
+        }
+        [HttpGet("TotalAmountByProductId/{productId}")]
+
+        public ActionResult<int> TotalAmountByProductId(string productId)
+        {
+            // Truy vấn từ cơ sở dữ liệu để lấy tổng số lượng theo ProductId
+            int totalAmount = _context.ProductDetails
+                                        .Where(pd => pd.ProductId == productId)
+                                        .Sum(pd => pd.Amount) ?? 0;
+
+            return Ok(totalAmount);
+
+
+
+        }
+
+        [HttpGet("AmountByColorStorage/{productId}")]
+
+        public ActionResult<int> AmountByColorStorage(string productId, string? colorName, int? storageGb)
+        {
+            
+            var query = _context.ProductDetails.Where(pd => pd.ProductId == productId);
+
+            if (!string.IsNullOrEmpty(colorName))
+            {
+                query = query.Where(pd => pd.ColorName == colorName);
+            }
+
+            if (storageGb != null && storageGb != 0)
+            {
+                query = query.Where(pd => pd.StorageGb == storageGb);
+            }
+
+            int totalAmount = query.Sum(pd => pd.Amount) ?? 0;
+
+            return Ok(totalAmount);
+        }
+       
+
+
+
 
     }
 }
