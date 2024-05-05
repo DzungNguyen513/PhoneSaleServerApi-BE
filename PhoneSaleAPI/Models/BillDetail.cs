@@ -8,8 +8,9 @@ namespace PhoneSaleAPI.Models
         public string BillId { get; set; } = null!;
         public string ProductId { get; set; } = null!;
         public string ColorName { get; set; } = null!;
-        public int StorageGb { get; set; }
-        public int? Amount { get; set; }
+        public int? StorageGb { get; set; }
+
+		public int? Amount { get; set; }
         public int? Price { get; set; }
         public int? Discount { get; set; }
         public int? Total { get; set; }

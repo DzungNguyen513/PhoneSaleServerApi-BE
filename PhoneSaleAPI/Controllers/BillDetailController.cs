@@ -20,7 +20,7 @@ namespace PhoneSaleAPI.Controllers
             _context = context;
         }
 
-        // GET: api/BillDetailKhanhDaSua
+        // GET: api/BillDetail
         [HttpGet]
         public async Task<ActionResult<IEnumerable<BillDetail>>> GetBillDetails()
         {
@@ -52,39 +52,48 @@ namespace PhoneSaleAPI.Controllers
 
 
 		// PUT: api/BillDetail/5
-		// To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
 		[HttpPut("{id}")]
-        public async Task<IActionResult> PutBillDetail(string id, BillDetail billDetail)
-        {
-            if (id != billDetail.BillId)
-            {
-                return BadRequest();
-            }
+		public async Task<IActionResult> PutBillDetail(string id, [FromBody] BillDetail updatedBillDetail)
+		{
+			if (id != updatedBillDetail.BillId)
+			{
+				return BadRequest();
+			}
 
-            _context.Entry(billDetail).State = EntityState.Modified;
+			var existingBillDetail = await _context.BillDetails.FirstOrDefaultAsync(b => b.BillId == id);
 
-            try
-            {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!BillDetailExists(id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
-            }
+			if (existingBillDetail == null)
+			{
+				return NotFound();
+			}
 
-            return NoContent();
-        }
+			existingBillDetail.ProductId = updatedBillDetail.ProductId;
+			existingBillDetail.ColorName = updatedBillDetail.ColorName;
+			existingBillDetail.StorageGb = updatedBillDetail.StorageGb;
+			// Cập nhật các trường khác tùy theo nhu cầu
 
-        // POST: api/BillDetail
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPost]
+			try
+			{
+				await _context.SaveChangesAsync();
+			}
+			catch (DbUpdateConcurrencyException)
+			{
+				if (!BillDetailExists(id))
+				{
+					return NotFound();
+				}
+				else
+				{
+					throw;
+				}
+			}
+
+			return NoContent();
+		}
+
+		// POST: api/BillDetail
+		// To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
+		[HttpPost]
         public async Task<ActionResult<BillDetail>> PostBillDetail(BillDetail billDetail)
         {
           if (_context.BillDetails == null)
@@ -135,5 +144,8 @@ namespace PhoneSaleAPI.Controllers
         {
             return (_context.BillDetails?.Any(e => e.BillId == id)).GetValueOrDefault();
         }
-    }
+
+		
+	}
+
 }
