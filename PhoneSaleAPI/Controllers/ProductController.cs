@@ -39,7 +39,7 @@ namespace PhoneSaleAPI.Controllers
         {
             var product = await _context.Products.FindAsync(productId);
 
-            if (product == null)
+            if (product == null || product.Status != 1)
             {
                 return NotFound();
             }
