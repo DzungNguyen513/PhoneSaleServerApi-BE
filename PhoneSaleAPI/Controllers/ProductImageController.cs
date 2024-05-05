@@ -104,6 +104,148 @@ namespace PhoneSaleAPI.Controllers
             }
         }
 
+        [HttpPut("UpdateProductImage/{productId}/{productImageId}")]
+        public async Task<IActionResult> UpdateProductImage(string productId, string productImageId, [FromForm] ProductImageDTO productImageDTO)
+        {
+            // Tìm kiếm ảnh sản phẩm để cập nhật
+            var existingProductImage = await _context.ProductImages.FindAsync(productImageId);
 
+            if (existingProductImage == null)
+            {
+                return NotFound("Product image not found.");
+            }
+
+            // Kiểm tra xem có tệp ảnh mới được cung cấp không
+            if (productImageDTO.ImageFile != null)
+            {
+                // Xóa ảnh cũ nếu tồn tại
+                var folderPath = Path.Combine("Assets", "Images", productId);
+                var oldImagePath = Path.Combine(folderPath, existingProductImage.ImagePath);
+
+                if (System.IO.File.Exists(oldImagePath))
+                {
+                    System.IO.File.Delete(oldImagePath);
+                }
+
+                // Lưu ảnh mới vào thư mục
+                var fileName = Path.GetFileNameWithoutExtension(productImageDTO.ImageFile.FileName);
+                var extension = Path.GetExtension(productImageDTO.ImageFile.FileName);
+                fileName = $"{fileName}{extension}";
+                var fullPath = Path.Combine(folderPath, fileName);
+
+                using (var stream = new FileStream(fullPath, FileMode.Create))
+                {
+                    await productImageDTO.ImageFile.CopyToAsync(stream);
+                }
+
+                // Cập nhật đường dẫn ảnh mới
+                existingProductImage.ImagePath = fileName;
+            }
+
+            // Cập nhật các thông tin khác của ảnh sản phẩm
+
+            try
+            {
+                await _context.SaveChangesAsync();
+                return Ok(existingProductImage);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
+        }
+
+        [HttpGet("{productId}")]
+        public async Task<ActionResult<IEnumerable<ProductImage>>> GetProductImagesByProductId(string productId)
+        {
+            try
+            {
+                var productImages = await _context.ProductImages.Where(image => image.ProductId == productId).ToListAsync();
+                if (productImages == null || !productImages.Any())
+                {
+                    return NotFound();
+                }
+
+                var imagePaths = await GetProductImagesPaths(productId);
+                var productImagesDTO = new List<ProductImage>();
+
+                foreach (var productImage in productImages)
+                {
+                    var imagePath = imagePaths.FirstOrDefault(path => Path.GetFileName(path) == productImage.ImagePath);
+                    var productImageDTO = new ProductImage
+                    {
+                        ProductImageId = productImage.ProductImageId,
+                        ProductId = productImage.ProductId,
+                        ColorName = productImage.ColorName,
+                        ImagePath = imagePath,
+                        IsPrimary = productImage.IsPrimary,
+                        CreateAt = productImage.CreateAt,
+                        UpdateAt = productImage.UpdateAt
+                    };
+                    productImagesDTO.Add(productImageDTO);
+                }
+
+                return Ok(productImagesDTO);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Đã xảy ra lỗi khi lấy ảnh: {ex.Message}");
+            }
+        }
+
+        private async Task<List<string>> GetProductImagesPaths(string productId)
+        {
+            try
+            {
+                var folderPath = Path.Combine("Assets", "Images", productId);
+                var imageFiles = Directory.GetFiles(folderPath);
+
+                var imagePaths = new List<string>();
+                foreach (var imagePath in imageFiles)
+                {
+                    var relativePath = Path.Combine(folderPath, Path.GetFileName(imagePath));
+                    imagePaths.Add(relativePath);
+                }
+
+                return imagePaths;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Đã xảy ra lỗi khi lấy đường dẫn ảnh: {ex.Message}");
+            }
+        }
+
+        [HttpDelete("DeleteProductImage/{productImageId}")]
+        public async Task<IActionResult> DeleteProductImage(string productImageId)
+        {
+            var existingProductImage = await _context.ProductImages.FindAsync(productImageId);
+
+            if (existingProductImage == null)
+            {
+                return NotFound("Product image not found.");
+            }
+
+            try
+            {
+                // Xóa ảnh từ thư mục
+                var folderPath = Path.Combine("Assets", "Images", existingProductImage.ProductId);
+                var imagePath = Path.Combine(folderPath, existingProductImage.ImagePath);
+
+                if (System.IO.File.Exists(imagePath))
+                {
+                    System.IO.File.Delete(imagePath);
+                }
+
+                // Xóa ảnh khỏi cơ sở dữ liệu
+                _context.ProductImages.Remove(existingProductImage);
+                await _context.SaveChangesAsync();
+
+                return Ok("Product image deleted successfully.");
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
+        }
     }
 }
