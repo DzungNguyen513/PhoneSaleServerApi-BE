@@ -112,19 +112,14 @@ namespace PhoneSaleAPI.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteProduct(string id)
         {
-            if (_context.Products == null)
-            {
-                return NotFound();
-            }
             var product = await _context.Products.FindAsync(id);
-            var productDetail = await _context.ProductDetails.FindAsync(id);
-            if (product == null && productDetail == null)
+            if (product == null)
             {
                 return NotFound();
             }
 
-            _context.Products.Remove(product);
-            _context.ProductDetails.Remove(productDetail);
+            product.Status = 1; // Chuyển trạng thái của sản phẩm sang 1
+
             await _context.SaveChangesAsync();
 
             return NoContent();
@@ -278,5 +273,50 @@ namespace PhoneSaleAPI.Controllers
                 return StatusCode(500, $"Internal server error: {ex.Message}");
             }
         }
+
+        // PUT: api/ProductDetails/5
+        [HttpPut("EditProductDetails/{productId}/{storageGb}/{colorName}")]
+        public async Task<IActionResult> PutProductDetail(string productId, int storageGb, string colorName, ProductDetailDTO productDetailDTO)
+        {
+
+            // Kiểm tra xem chi tiết sản phẩm có tồn tại trong cơ sở dữ liệu không
+            var existingDetail = await _context.ProductDetails.FirstOrDefaultAsync(d =>
+                d.ProductId == productId && d.StorageGb == storageGb && d.ColorName == colorName);
+
+            if (existingDetail == null)
+            {
+                return NotFound("Product detail not found.");
+            }
+
+            // Cập nhật thuộc tính của existingDetail
+            existingDetail.Amount = productDetailDTO.Amount;
+
+
+
+            try
+            {
+                await _context.SaveChangesAsync();
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                // Kiểm tra xem chi tiết sản phẩm vẫn tồn tại trong cơ sở dữ liệu sau khi cập nhật
+                if (!ProductDetailExists(productId, storageGb, colorName))
+                {
+                    return NotFound("Product detail not found.");
+                }
+                else
+                {
+                    throw;
+                }
+            }
+
+            return NoContent();
+        }
+
+        private bool ProductDetailExists(string productId, int storageGb, string colorName)
+        {
+            return _context.ProductDetails.Any(d => d.ProductId == productId && d.StorageGb == storageGb && d.ColorName == colorName);
+        }
     }
 }
+
