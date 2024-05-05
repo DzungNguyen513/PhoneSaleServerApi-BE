@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using PhoneSaleAPI.DTO.Bill;
 using PhoneSaleAPI.DTO.Customer;
+using PhoneSaleAPI.DTO.SystemNotification;
 using PhoneSaleAPI.Models;
 
 namespace PhoneSaleAPI.Controllers
@@ -319,5 +320,34 @@ namespace PhoneSaleAPI.Controllers
 
             return Ok(new { success = true, message = "Đổi mật khẩu thành công" });
         }
+        [HttpPut("UpdateToken/{customerId}")]
+        public async Task<IActionResult> UpdateToken(string customerId, [FromBody] TokenUpdateDTO tokenUpdateDTO)
+        {
+            var customer = await _context.Customers.FindAsync(customerId);
+            if (customer == null)
+            {
+                return NotFound(new { success = false, message = "Không tìm thấy khách hàng." });
+            }
+
+            customer.NotificationToken = tokenUpdateDTO.NotificationToken;
+            await _context.SaveChangesAsync();
+
+            return Ok(new { success = true, message = "Token đã được cập nhật thành công." });
+        }
+        [HttpPost("RemoveToken/{customerId}")]
+        public async Task<IActionResult> RemoveToken(string customerId)
+        {
+            var customer = await _context.Customers.FindAsync(customerId);
+            if (customer == null)
+            {
+                return NotFound("Customer not found.");
+            }
+
+            customer.NotificationToken = null;
+            await _context.SaveChangesAsync();
+
+            return Ok("Token removed successfully.");
+        }
+
     }
 }
