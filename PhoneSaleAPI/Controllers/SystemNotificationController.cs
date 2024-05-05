@@ -7,6 +7,10 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using PhoneSaleAPI.DTO.SystemNotification;
 using PhoneSaleAPI.Models;
+using FirebaseAdmin;
+using Google.Apis.Auth.OAuth2;
+using FirebaseAdmin.Messaging;
+using PhoneSaleAPI.Firebase;
 
 namespace PhoneSaleAPI.Controllers
 {
@@ -156,6 +160,21 @@ namespace PhoneSaleAPI.Controllers
                 _context.SystemNotifications.Add(notification);
                 await _context.SaveChangesAsync();
 
+                if (string.IsNullOrEmpty(notificationDTO.CustomerId))
+                {
+                    await FirebaseManager.SendNotificationToTopic("com.example.phonesaleapp", notificationDTO.Title, notificationDTO.Description);
+                }
+                else
+                {
+                    var customer = await _context.Customers
+                                                 .Where(c => c.CustomerId == notificationDTO.CustomerId)
+                                                 .FirstOrDefaultAsync();
+                    if (customer != null && !string.IsNullOrEmpty(customer.NotificationToken))
+                    {
+                        await FirebaseManager.SendNotificationToToken(customer.NotificationToken, notificationDTO.Title, notificationDTO.Description);
+                    }
+                }
+
                 var responseDTO = new SystemNotificationResponseDTO
                 {
                     NotificationID = notification.NotificationId,
@@ -165,7 +184,6 @@ namespace PhoneSaleAPI.Controllers
                     IsActive = (bool)notification.IsActive,
                     CreatedAt = DateTimeOffset.Parse(notification.CreatedAt.ToString()).ToString("dd/MM/yyyy HH:mm"),
                 };
-
                 return CreatedAtAction(nameof(GetNotification), new { id = notification.NotificationId }, responseDTO);
             }
             catch (Exception ex)

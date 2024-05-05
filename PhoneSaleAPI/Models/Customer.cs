@@ -24,6 +24,7 @@ namespace PhoneSaleAPI.Models
         public int? Gender { get; set; }
         public int? Status { get; set; }
         public DateTime? LastLogin { get; set; }
+        public string? NotificationToken { get; set; }
         public DateTime? CreateAt { get; set; }
         public DateTime? UpdateAt { get; set; }
 
