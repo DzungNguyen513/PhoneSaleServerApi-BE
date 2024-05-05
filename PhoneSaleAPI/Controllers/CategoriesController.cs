@@ -124,8 +124,7 @@ namespace PhoneSaleAPI.Controllers
             {
                 return NotFound();
             }
-
-            _context.Categories.Remove(category);
+            category.Status = 1;
             await _context.SaveChangesAsync();
 
             return NoContent();
@@ -201,6 +200,69 @@ namespace PhoneSaleAPI.Controllers
 
             return File(imageBytes, "image/jpeg"); // Trả về file ảnh với kiểu MIME là "image/jpeg"
         }
+
+        [HttpPut("UpdateCategory/{categoryId}")]
+        public async Task<IActionResult> UpdateCategory(string categoryId, [FromForm] CreateCategoriesDTO categoryDTO)
+        {
+            // Tìm kiếm danh mục để cập nhật
+            var existingCategory = await _context.Categories.FindAsync(categoryId);
+
+            if (existingCategory == null)
+            {
+                return NotFound("Category not found.");
+            }
+
+            // Kiểm tra xem có tệp ảnh mới được cung cấp không
+            if (categoryDTO.CategoryImage != null)
+            {
+                // Xóa ảnh cũ nếu tồn tại
+                if (!string.IsNullOrEmpty(existingCategory.CategoryImage))
+                {
+                    var oldImagePath = Path.Combine(Directory.GetCurrentDirectory(), "Assets", "CategoriesImg", existingCategory.CategoryImage);
+                    if (System.IO.File.Exists(oldImagePath))
+                    {
+                        System.IO.File.Delete(oldImagePath);
+                    }
+                }
+
+                // Lưu ảnh mới vào thư mục
+                var folderName = Path.Combine("Assets", "CategoriesImg");
+                var pathToSave = Path.Combine(Directory.GetCurrentDirectory(), folderName);
+
+                if (!Directory.Exists(pathToSave))
+                {
+                    Directory.CreateDirectory(pathToSave);
+                }
+
+                var fileName = Path.GetFileNameWithoutExtension(categoryDTO.CategoryImage.FileName);
+                var extension = Path.GetExtension(categoryDTO.CategoryImage.FileName);
+                fileName = $"{fileName}{extension}";
+                var fullPath = Path.Combine(pathToSave, fileName);
+
+                using (var stream = new FileStream(fullPath, FileMode.Create))
+                {
+                    await categoryDTO.CategoryImage.CopyToAsync(stream);
+                }
+
+                // Cập nhật thông tin danh mục
+                existingCategory.CategoryImage = fileName;
+            }
+
+            // Cập nhật các thông tin khác của danh mục
+            existingCategory.CategoryName = categoryDTO.CategoryName;
+            existingCategory.Status = categoryDTO.Status;
+
+            try
+            {
+                await _context.SaveChangesAsync();
+                return Ok(existingCategory);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
+        }
+
 
 
 
