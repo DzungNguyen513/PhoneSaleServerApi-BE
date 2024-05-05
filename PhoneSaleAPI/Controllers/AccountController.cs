@@ -258,5 +258,17 @@ namespace PhoneSaleAPI.Controllers
 
             return Ok(new { success = true, message = "Đổi mật khẩu thành công" });
         }
+
+        [HttpGet("LastLogin/{username}")]
+        public IActionResult GetLastLogin(string username)
+        {
+            var account = _context.Accounts.FirstOrDefault(a => a.Username == username);
+            if (account == null)
+            {
+                return NotFound();
+            }
+
+            return Ok(new { LastLogin = account.LastLogin });
+        }
     }
 }

@@ -242,7 +242,7 @@ namespace PhoneSaleAPI.Controllers
                     {
                         b.BillId,
                         DateBill = DateTimeOffset.Parse(b.DateBill.ToString()).ToString("yyyy-MM-dd HH:mm"),
-                        TotalProducts = _context.BillDetails.Count(d => d.BillId == b.BillId),
+                        TotalProducts = _context.BillDetails.Where(d => d.BillId == b.BillId).Sum(d => d.Amount),
                         b.TotalBill,
                         status = b.Status
                     })

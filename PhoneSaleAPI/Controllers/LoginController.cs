@@ -8,6 +8,7 @@ using System.Text;
 using PhoneSaleAPI.Models;
 using PhoneSaleAPI.DTO.Customer;
 using PhoneSaleAPI.DTO.Account;
+using System.Security.Principal;
 
 [ApiController]
 [Route("api/[controller]")]
@@ -46,6 +47,16 @@ public class LoginController : ControllerBase
             return NotFound(new { success = false, message = "Sai email hoặc mật khẩu" });
         }
 
+        // Lấy thời gian Việt Nam
+        TimeZoneInfo vnTimeZone = TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time");
+        DateTime serverTime = DateTime.UtcNow;
+        DateTime serverTimeUtc = DateTime.SpecifyKind(serverTime, DateTimeKind.Utc); // Đặt Kind của thời gian thành Utc
+        DateTime vietnamTime = TimeZoneInfo.ConvertTime(serverTimeUtc, vnTimeZone);
+
+
+        customer.LastLogin = vietnamTime; // Cập nhật thời gian đăng nhập
+        _context.SaveChanges();
+
         return Ok(new { success = true, message = "Đăng nhập thành công" });
     }
 
@@ -74,6 +85,16 @@ public class LoginController : ControllerBase
 
             return NotFound(new { success = false, message = "Sai tài khoản hoặc mật khẩu" });
         }
+
+        // Lấy thời gian Việt Nam
+        TimeZoneInfo vnTimeZone = TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time");
+        DateTime serverTime = DateTime.UtcNow;
+        DateTime serverTimeUtc = DateTime.SpecifyKind(serverTime, DateTimeKind.Utc); // Đặt Kind của thời gian thành Utc
+        DateTime vietnamTime = TimeZoneInfo.ConvertTime(serverTimeUtc, vnTimeZone);
+
+
+        account.LastLogin = vietnamTime; // Cập nhật thời gian đăng nhập
+        _context.SaveChanges();
 
         return Ok(new { success = true, message = "Đăng nhập thành công" });
     }

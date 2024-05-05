@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using PhoneSaleAPI.DTO.Bill;
 using PhoneSaleAPI.DTO.Customer;
+using PhoneSaleAPI.DTO.SystemNotification;
 using PhoneSaleAPI.Models;
 
 namespace PhoneSaleAPI.Controllers
@@ -320,6 +321,35 @@ namespace PhoneSaleAPI.Controllers
             return Ok(new { success = true, message = "Đổi mật khẩu thành công" });
         }
 
+        [HttpPut("UpdateToken/{customerId}")]
+        public async Task<IActionResult> UpdateToken(string customerId, [FromBody] TokenUpdateDTO tokenUpdateDTO)
+        {
+            var customer = await _context.Customers.FindAsync(customerId);
+            if (customer == null)
+            {
+                return NotFound(new { success = false, message = "Không tìm thấy khách hàng." });
+            }
+
+            customer.NotificationToken = tokenUpdateDTO.NotificationToken;
+            await _context.SaveChangesAsync();
+
+            return Ok(new { success = true, message = "Token đã được cập nhật thành công." });
+        }
+        [HttpPost("RemoveToken/{customerId}")]
+        public async Task<IActionResult> RemoveToken(string customerId)
+        {
+            var customer = await _context.Customers.FindAsync(customerId);
+            if (customer == null)
+            {
+                return NotFound("Customer not found.");
+            }
+
+            customer.NotificationToken = null;
+            await _context.SaveChangesAsync();
+
+            return Ok("Token removed successfully.");
+        }
+
         [HttpPut("updateCustomerStatus/{custommerId}")]
         public async Task<IActionResult> UpdateAccountStatus(string custommerId, [FromBody] CustomerStatusUpdate statusUpdate)
         {
@@ -340,6 +370,18 @@ namespace PhoneSaleAPI.Controllers
             await _context.SaveChangesAsync();
 
             return Ok(customer);
+        }
+
+        [HttpGet("LastLogin/{email}")]
+        public IActionResult GetLastLogin(string email)
+        {
+            var customer = _context.Customers.FirstOrDefault(a => a.Email == email);
+            if (customer == null)
+            {
+                return NotFound();
+            }
+
+            return Ok(new { LastLogin = customer.LastLogin });
         }
     }
 }
