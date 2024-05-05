@@ -124,7 +124,7 @@ namespace PhoneSaleAPI.Controllers
             {
                 return NotFound();
             }
-            category.Status = 1;
+            category.Status = 0;
             await _context.SaveChangesAsync();
 
             return NoContent();

@@ -118,7 +118,7 @@ namespace PhoneSaleAPI.Controllers
                 return NotFound();
             }
 
-            product.Status = 1; // Chuyển trạng thái của sản phẩm sang 1
+            product.Status = 0; // Chuyển trạng thái của sản phẩm sang 1
 
             await _context.SaveChangesAsync();
 
