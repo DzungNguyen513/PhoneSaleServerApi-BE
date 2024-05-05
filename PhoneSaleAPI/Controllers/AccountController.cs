@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using PhoneSaleAPI.DTO.Account;
+using PhoneSaleAPI.DTO.Customer;
 using PhoneSaleAPI.Models;
 
 namespace PhoneSaleAPI.Controllers
@@ -194,6 +195,68 @@ namespace PhoneSaleAPI.Controllers
                 var hashedBytes = sha256.ComputeHash(Encoding.UTF8.GetBytes(password));
                 return BitConverter.ToString(hashedBytes).Replace("-", "").ToLower();
             }
+        }
+
+        [HttpPut("updateAccountStatus/{accountId}")]
+        public async Task<IActionResult> UpdateAccountStatus(string accountId, [FromBody] AccountStatusUpdate statusUpdate)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            var account = await _context.Accounts.FindAsync(accountId);
+            if (account == null)
+            {
+                return NotFound($"Không tìm thấy khách hàng có ID {accountId}");
+            }
+
+            // Cập nhật trạng thái
+            account.Status = statusUpdate.Status;
+            _context.Accounts.Update(account);
+            await _context.SaveChangesAsync();
+
+            return Ok(account);
+        }
+        [HttpPost("ChangePassword")]
+        public async Task<IActionResult> ChangePassword([FromBody] ChangePassword change)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            var account = await _context.Accounts
+                .FirstOrDefaultAsync(c => c.Username == change.UserName && c.Status == 1);
+
+            if (account == null)
+            {
+                return NotFound(new { success = false, message = "Không tìm thấy tài khoản" });
+            }
+
+            var hashedOldPassword = HashPassword(change.OldPassword);
+            var hashedNewPassword = HashPassword(change.NewPassword);
+
+            if (account.Password != hashedOldPassword)
+            {
+                return BadRequest(new { success = false, message = "Mật khẩu cũ không chính xác" });
+            }
+
+            if (hashedOldPassword == hashedNewPassword)
+            {
+                return BadRequest(new { success = false, message = "Mật khẩu mới không được trùng với mật khẩu cũ" });
+            }
+
+            if (change.NewPassword != change.ConfirmNewPassword)
+            {
+                return BadRequest(new { success = false, message = "Mật khẩu mới và xác nhận mật khẩu mới không trùng khớp" });
+            }
+
+            account.Password = hashedNewPassword;
+            _context.Accounts.Update(account);
+            await _context.SaveChangesAsync();
+
+            return Ok(new { success = true, message = "Đổi mật khẩu thành công" });
         }
     }
 }
