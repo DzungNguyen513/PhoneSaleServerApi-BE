@@ -341,5 +341,17 @@ namespace PhoneSaleAPI.Controllers
 
             return Ok(customer);
         }
+
+        [HttpGet("LastLogin/{email}")]
+        public IActionResult GetLastLogin(string email)
+        {
+            var customer = _context.Customers.FirstOrDefault(a => a.Email == email);
+            if (customer == null)
+            {
+                return NotFound();
+            }
+
+            return Ok(new { LastLogin = customer.LastLogin });
+        }
     }
 }
