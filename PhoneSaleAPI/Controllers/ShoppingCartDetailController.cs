@@ -102,6 +102,35 @@ namespace PhoneSaleAPI.Controllers
 
             return NoContent();
         }
+
+        [HttpPost("PostShoppingCartDetail")]
+        public async Task<int> PostShoppingCartDetail(ShoppingCartDetail shoppingCartDetail)
+        {
+            if (_context.ShoppingCarts == null)
+            {
+                return 0;
+            }
+
+            try
+            {
+                var shoppingCart = await _context.ShoppingCarts.FindAsync(shoppingCartDetail.ShoppingCartId);
+                if (shoppingCart == null)
+                {
+                    return 0;
+                }
+                shoppingCart.ShoppingCartDetails.Add(shoppingCartDetail);
+               
+                await _context.SaveChangesAsync();
+
+                return 1; 
+            }
+            catch (DbUpdateException)
+            {
+                
+                return 0;
+            }
+        }
+
     }
 
 }

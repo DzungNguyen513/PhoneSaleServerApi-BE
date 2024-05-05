@@ -51,7 +51,7 @@ namespace PhoneSaleAPI.Models
             {
                 entity.ToTable("Account");
 
-                entity.HasIndex(e => e.Username, "UQ__Account__536C85E4AE293062")
+                entity.HasIndex(e => e.Username, "UQ__Account__536C85E4A6E90FB6")
                     .IsUnique();
 
                 entity.Property(e => e.AccountId)
@@ -178,7 +178,7 @@ namespace PhoneSaleAPI.Models
             modelBuilder.Entity<ChatMessage>(entity =>
             {
                 entity.HasKey(e => e.MessageId)
-                    .HasName("PK__ChatMess__C87C037C746404CE");
+                    .HasName("PK__ChatMess__C87C037C822CE53B");
 
                 entity.ToTable("ChatMessage");
 
@@ -221,7 +221,7 @@ namespace PhoneSaleAPI.Models
             modelBuilder.Entity<ChatSession>(entity =>
             {
                 entity.HasKey(e => e.SessionId)
-                    .HasName("PK__ChatSess__C9F492708C3CC4F9");
+                    .HasName("PK__ChatSess__C9F49270B0FF3D10");
 
                 entity.ToTable("ChatSession");
 
@@ -261,7 +261,7 @@ namespace PhoneSaleAPI.Models
             modelBuilder.Entity<Color>(entity =>
             {
                 entity.HasKey(e => e.ColorName)
-                    .HasName("PK__Color__C71A5A7AE295C92B");
+                    .HasName("PK__Color__C71A5A7A350B866E");
 
                 entity.ToTable("Color");
 
@@ -282,7 +282,7 @@ namespace PhoneSaleAPI.Models
             {
                 entity.ToTable("Customer");
 
-                entity.HasIndex(e => e.Email, "UQ__Customer__A9D105340DD58761")
+                entity.HasIndex(e => e.Email, "UQ__Customer__A9D1053407D4A1B1")
                     .IsUnique();
 
                 entity.Property(e => e.CustomerId)
@@ -492,7 +492,7 @@ namespace PhoneSaleAPI.Models
             {
                 entity.ToTable("ShoppingCart");
 
-                entity.HasIndex(e => e.CustomerId, "UQ__Shopping__A4AE64B9C351B852")
+                entity.HasIndex(e => e.CustomerId, "UQ__Shopping__A4AE64B9F1CC7FE3")
                     .IsUnique();
 
                 entity.Property(e => e.ShoppingCartId)
@@ -572,7 +572,7 @@ namespace PhoneSaleAPI.Models
             modelBuilder.Entity<Storage>(entity =>
             {
                 entity.HasKey(e => e.StorageGb)
-                    .HasName("PK__Storage__8A246E7796C39BD5");
+                    .HasName("PK__Storage__8A246E77E733596E");
 
                 entity.ToTable("Storage");
 
@@ -592,7 +592,7 @@ namespace PhoneSaleAPI.Models
             modelBuilder.Entity<SystemNotification>(entity =>
             {
                 entity.HasKey(e => e.NotificationId)
-                    .HasName("PK__SystemNo__20CF2E32FF2CE7EB");
+                    .HasName("PK__SystemNo__20CF2E32C3EACE75");
 
                 entity.ToTable("SystemNotification");
 
@@ -627,7 +627,7 @@ namespace PhoneSaleAPI.Models
             modelBuilder.Entity<SystemNotificationRead>(entity =>
             {
                 entity.HasKey(e => e.ReadId)
-                    .HasName("PK__SystemNo__1FABC84C882AE787");
+                    .HasName("PK__SystemNo__1FABC84C5FD950AC");
 
                 entity.ToTable("SystemNotificationRead");
 

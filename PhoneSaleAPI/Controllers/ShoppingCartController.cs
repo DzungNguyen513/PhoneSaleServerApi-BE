@@ -129,10 +129,19 @@ namespace PhoneSaleAPI.Controllers
             return NoContent();
         }
 
+       
+        [HttpGet("GetShoppingCartIdByCustomerId/{customerId}")]
+        public async Task<ActionResult<string>> GetShoppingCartIdByCustomerId(string customerId)
+        {
+            // Truy vấn từ cơ sở dữ liệu để lấy tổng số lượng theo ProductId
+            var shoppingCart = await _context.ShoppingCarts
+                .FirstOrDefaultAsync(sc => sc.CustomerId == customerId);
+            return Ok(shoppingCart.ShoppingCartId);
+
+        }
         private bool ShoppingCartExists(string id)
         {
             return (_context.ShoppingCarts?.Any(e => e.ShoppingCartId == id)).GetValueOrDefault();
         }
-        
     }
 }
