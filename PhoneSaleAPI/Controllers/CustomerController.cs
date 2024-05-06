@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Security.Cryptography;
+using System.Security.Principal;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
@@ -273,6 +274,17 @@ namespace PhoneSaleAPI.Controllers
             {
                 _context.Customers.Update(customer);
                 await _context.SaveChangesAsync();
+
+                // Lấy thời gian Việt Nam
+                TimeZoneInfo vnTimeZone = TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time");
+                DateTime serverTime = DateTime.UtcNow;
+                DateTime serverTimeUtc = DateTime.SpecifyKind(serverTime, DateTimeKind.Utc); // Đặt Kind của thời gian thành Utc
+                DateTime vietnamTime = TimeZoneInfo.ConvertTime(serverTimeUtc, vnTimeZone);
+
+
+                customer.UpdateAt = vietnamTime; // Cập nhật thời gian sửa
+                _context.SaveChanges();
+
                 return Ok(new { success = true, message = "Cập nhật thông tin khách hàng thành công" });
             }
             catch (Exception ex) 
@@ -317,6 +329,15 @@ namespace PhoneSaleAPI.Controllers
             customer.Password = hashedNewPassword;
             _context.Customers.Update(customer);
             await _context.SaveChangesAsync();
+
+            // Lấy thời gian Việt Nam
+            TimeZoneInfo vnTimeZone = TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time");
+            DateTime serverTime = DateTime.UtcNow;
+            DateTime serverTimeUtc = DateTime.SpecifyKind(serverTime, DateTimeKind.Utc); // Đặt Kind của thời gian thành Utc
+            DateTime vietnamTime = TimeZoneInfo.ConvertTime(serverTimeUtc, vnTimeZone);
+
+            customer.UpdateAt = vietnamTime; // Cập nhật thời gian sửa
+            _context.SaveChanges();
 
             return Ok(new { success = true, message = "Đổi mật khẩu thành công" });
         }
@@ -369,6 +390,16 @@ namespace PhoneSaleAPI.Controllers
             _context.Customers.Update(customer);
             await _context.SaveChangesAsync();
 
+            // Lấy thời gian Việt Nam
+            TimeZoneInfo vnTimeZone = TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time");
+            DateTime serverTime = DateTime.UtcNow;
+            DateTime serverTimeUtc = DateTime.SpecifyKind(serverTime, DateTimeKind.Utc); // Đặt Kind của thời gian thành Utc
+            DateTime vietnamTime = TimeZoneInfo.ConvertTime(serverTimeUtc, vnTimeZone);
+
+
+            customer.UpdateAt = vietnamTime; // Cập nhật thời gian sửa
+            _context.SaveChanges();
+
             return Ok(customer);
         }
 
@@ -382,6 +413,18 @@ namespace PhoneSaleAPI.Controllers
             }
 
             return Ok(new { LastLogin = customer.LastLogin });
+        }
+
+        [HttpGet("LastUpdate/{email}")]
+        public IActionResult GetLastUpdate(string email)
+        {
+            var customer = _context.Customers.FirstOrDefault(a => a.Email == email);
+            if (customer == null)
+            {
+                return NotFound();
+            }
+
+            return Ok(new { updateAt = customer.UpdateAt });
         }
     }
 }
