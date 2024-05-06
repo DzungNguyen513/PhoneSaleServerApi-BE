@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.CodeAnalysis;
 using Microsoft.EntityFrameworkCore;
 using PhoneSaleAPI.DTO.Product;
 using PhoneSaleAPI.Models;
@@ -26,11 +27,16 @@ namespace PhoneSaleAPI.Controllers
         [HttpGet("GetProducts")]
         public async Task<ActionResult<IEnumerable<Product>>> GetProducts()
         {
-          if (_context.Products == null)
-          {
-              return NotFound();
-          }
-            return await _context.Products.ToListAsync();
+            var products = await _context.Products
+                                   .Where(p => p.Status == 1)
+                                   .ToListAsync();
+
+            if (products == null || products.Count == 0)
+            {
+                return NotFound();
+            }
+
+            return products;
         }
 
         // GET: api/Product/5
@@ -376,6 +382,43 @@ namespace PhoneSaleAPI.Controllers
         {
             return _context.ProductDetails.Any(d => d.ProductId == productId && d.StorageGb == storageGb && d.ColorName == colorName);
         }
+
+        [HttpGet("FilterByCategory/{CategoryId}")]
+        public ActionResult<IEnumerable<Product>> FilterByCategory(string CategoryId)
+        {
+            
+            var products = _context.Products
+                                    .Where(p => p.CategoryId == CategoryId && p.Status == 1)
+                                    .ToList();
+
+            if (!products.Any())
+            {
+                return NotFound();
+            }
+
+            return products;
+        }
+
+
+
+        [HttpGet("SearchProducts/{searchString}")]
+        public ActionResult<IEnumerable<Product>> SearchProducts(string searchString)
+        {
+            // Lọc sản phẩm dựa trên chuỗi tìm kiếm
+            var products = _context.Products
+                                    .Where(p => p.Status == 1 && (p.ProductName.Contains(searchString) || p.Detail.Contains(searchString)))
+                                    .ToList();
+
+            if (products == null )
+            {
+                // Trả về 404 nếu không tìm thấy sản phẩm nào thỏa mãn điều kiện tìm kiếm
+                return NotFound();
+            }
+            return products;
+        }
+
+
+
     }
-}
+    }
 
