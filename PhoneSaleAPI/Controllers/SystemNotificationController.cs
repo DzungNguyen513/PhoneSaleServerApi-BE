@@ -192,7 +192,6 @@ namespace PhoneSaleAPI.Controllers
             }
         }
 
-
         [HttpGet("GetNotification")]
         public async Task<ActionResult<IEnumerable<SystemNotificationResponseDTO>>> GetNotification(string? customerId = null)
         {
