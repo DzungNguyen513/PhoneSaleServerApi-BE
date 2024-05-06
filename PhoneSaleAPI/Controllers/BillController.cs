@@ -343,5 +343,32 @@ namespace PhoneSaleAPI.Controllers
             }
         }
 
-    }
+		[HttpGet("CalculateTotalBill/{billId}")]
+		public async Task<ActionResult> CalculateTotalBill(string billId)
+		{
+			try
+			{
+				var totalBill = await _context.BillDetails
+					.Where(bd => bd.BillId == billId)
+					.SumAsync(bd => bd.Total);
+
+				var bill = await _context.Bills.FindAsync(billId);
+				if (bill == null)
+				{
+					return NotFound($"Không tìm thấy hóa đơn với ID: {billId}");
+				}
+
+				bill.TotalBill = totalBill;
+				await _context.SaveChangesAsync();
+
+				return Ok(new { success = true, totalBill });
+			}
+			catch (Exception ex)
+			{
+				return StatusCode(500, $"Lỗi: {ex.Message}");
+			}
+		}
+
+
+	}
 }
