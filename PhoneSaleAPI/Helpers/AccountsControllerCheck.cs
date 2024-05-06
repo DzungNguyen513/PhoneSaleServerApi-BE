@@ -7,59 +7,59 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using PhoneSaleAPI.Models;
 
-namespace PhoneSaleAPI.Controllers
+namespace PhoneSaleAPI.Helpers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class ProductsController : ControllerBase
+    public class AccountsControllerCheck : ControllerBase
     {
         private readonly PhoneManagementContext _context;
 
-        public ProductsController(PhoneManagementContext context)
+        public AccountsControllerCheck(PhoneManagementContext context)
         {
             _context = context;
         }
 
-        // GET: api/Products
+        // GET: api/Accounts
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Product>>> GetProducts()
+        public async Task<ActionResult<IEnumerable<Account>>> GetAccounts()
         {
-          if (_context.Products == null)
+          if (_context.Accounts == null)
           {
               return NotFound();
           }
-            return await _context.Products.ToListAsync();
+            return await _context.Accounts.ToListAsync();
         }
 
-        // GET: api/Products/5
+        // GET: api/Accounts/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<Product>> GetProduct(string id)
+        public async Task<ActionResult<Account>> GetAccount(string id)
         {
-          if (_context.Products == null)
+          if (_context.Accounts == null)
           {
               return NotFound();
           }
-            var product = await _context.Products.FindAsync(id);
+            var account = await _context.Accounts.FindAsync(id);
 
-            if (product == null)
+            if (account == null)
             {
                 return NotFound();
             }
 
-            return product;
+            return account;
         }
 
-        // PUT: api/Products/5
+        // PUT: api/Accounts/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutProduct(string id, Product product)
+        public async Task<IActionResult> PutAccount(string id, Account account)
         {
-            if (id != product.ProductId)
+            if (id != account.Username)
             {
                 return BadRequest();
             }
 
-            _context.Entry(product).State = EntityState.Modified;
+            _context.Entry(account).State = EntityState.Modified;
 
             try
             {
@@ -67,7 +67,7 @@ namespace PhoneSaleAPI.Controllers
             }
             catch (DbUpdateConcurrencyException)
             {
-                if (!ProductExists(id))
+                if (!AccountExists(id))
                 {
                     return NotFound();
                 }
@@ -80,23 +80,24 @@ namespace PhoneSaleAPI.Controllers
             return NoContent();
         }
 
-        // POST: api/Products
+        // Trùng nên bỏ
+        // POST: api/Accounts
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPost]
-        public async Task<ActionResult<Product>> PostProduct(Product product)
+        /* [HttpPost]
+        public async Task<ActionResult<Account>> PostAccount(Account account)
         {
-          if (_context.Products == null)
+          if (_context.Accounts == null)
           {
-              return Problem("Entity set 'PhoneManagementContext.Products'  is null.");
+              return Problem("Entity set 'PhoneManagementContext.Accounts'  is null.");
           }
-            _context.Products.Add(product);
+            _context.Accounts.Add(account);
             try
             {
                 await _context.SaveChangesAsync();
             }
             catch (DbUpdateException)
             {
-                if (ProductExists(product.ProductId))
+                if (AccountExists(account.Username))
                 {
                     return Conflict();
                 }
@@ -106,32 +107,32 @@ namespace PhoneSaleAPI.Controllers
                 }
             }
 
-            return CreatedAtAction("GetProduct", new { id = product.ProductId }, product);
-        }
+            return CreatedAtAction("GetAccount", new { id = account.Username }, account);
+        }*/
 
-        // DELETE: api/Products/5
+        // DELETE: api/Accounts/5
         [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteProduct(string id)
+        public async Task<IActionResult> DeleteAccount(string id)
         {
-            if (_context.Products == null)
+            if (_context.Accounts == null)
             {
                 return NotFound();
             }
-            var product = await _context.Products.FindAsync(id);
-            if (product == null)
+            var account = await _context.Accounts.FindAsync(id);
+            if (account == null)
             {
                 return NotFound();
             }
 
-            _context.Products.Remove(product);
+            _context.Accounts.Remove(account);
             await _context.SaveChangesAsync();
 
             return NoContent();
         }
 
-        private bool ProductExists(string id)
+        private bool AccountExists(string id)
         {
-            return (_context.Products?.Any(e => e.ProductId == id)).GetValueOrDefault();
+            return (_context.Accounts?.Any(e => e.Username == id)).GetValueOrDefault();
         }
     }
 }

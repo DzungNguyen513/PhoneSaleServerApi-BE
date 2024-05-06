@@ -24,10 +24,10 @@ namespace PhoneSaleAPI.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<BillDetail>>> GetBillDetails()
         {
-          if (_context.BillDetails == null)
-          {
-              return NotFound();
-          }
+            if (_context.BillDetails == null)
+            {
+                return NotFound();
+            }
             return await _context.BillDetails.ToListAsync();
         }
 
@@ -51,26 +51,29 @@ namespace PhoneSaleAPI.Controllers
 		}
 
 
-		// PUT: api/BillDetail/5
-		[HttpPut("{id}")]
-		public async Task<IActionResult> PutBillDetail(string id, [FromBody] BillDetail updatedBillDetail)
+		// PUT: api/BillDetail/{billId}/{productId}/{colorName}/{storageGb}
+		// To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
+		[HttpPut("{billId}/{productId}/{colorName}/{storageGb}")]
+		public async Task<IActionResult> PutBillDetail(string billId, string productId, int storageGb, string colorName, BillDetail billDetail)
 		{
-			if (id != updatedBillDetail.BillId)
+			if (billId != billDetail.BillId || productId != billDetail.ProductId || storageGb != billDetail.StorageGb || colorName != billDetail.ColorName)
 			{
 				return BadRequest();
 			}
 
-			var existingBillDetail = await _context.BillDetails.FirstOrDefaultAsync(b => b.BillId == id);
+			var existingBillDetail = await _context.BillDetails.FirstOrDefaultAsync(b => b.BillId == billId && b.ProductId == productId && b.StorageGb == storageGb && b.ColorName == colorName);
 
 			if (existingBillDetail == null)
 			{
 				return NotFound();
 			}
 
-			existingBillDetail.ProductId = updatedBillDetail.ProductId;
-			existingBillDetail.ColorName = updatedBillDetail.ColorName;
-			existingBillDetail.StorageGb = updatedBillDetail.StorageGb;
-			// Cập nhật các trường khác tùy theo nhu cầu
+			// Cập nhật các trường của BillDetail
+			existingBillDetail.Amount = billDetail.Amount;
+			existingBillDetail.Price = billDetail.Price;
+			existingBillDetail.Discount = billDetail.Discount;
+			existingBillDetail.Total = billDetail.Total;
+			existingBillDetail.UpdateAt = billDetail.UpdateAt;
 
 			try
 			{
@@ -78,7 +81,7 @@ namespace PhoneSaleAPI.Controllers
 			}
 			catch (DbUpdateConcurrencyException)
 			{
-				if (!BillDetailExists(id))
+				if (!BillDetailExists(billId))
 				{
 					return NotFound();
 				}
@@ -96,10 +99,10 @@ namespace PhoneSaleAPI.Controllers
 		[HttpPost]
         public async Task<ActionResult<BillDetail>> PostBillDetail(BillDetail billDetail)
         {
-          if (_context.BillDetails == null)
-          {
-              return Problem("Entity set 'PhoneManagementContext.BillDetails'  is null.");
-          }
+            if (_context.BillDetails == null)
+            {
+                return Problem("Entity set 'PhoneManagementContext.BillDetails'  is null.");
+            }
             _context.BillDetails.Add(billDetail);
             try
             {

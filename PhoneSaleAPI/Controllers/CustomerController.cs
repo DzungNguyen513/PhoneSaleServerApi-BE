@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Security.Cryptography;
+using System.Security.Principal;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
@@ -9,6 +10,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using PhoneSaleAPI.DTO.Bill;
 using PhoneSaleAPI.DTO.Customer;
+using PhoneSaleAPI.DTO.SystemNotification;
 using PhoneSaleAPI.Models;
 
 namespace PhoneSaleAPI.Controllers
@@ -272,6 +274,17 @@ namespace PhoneSaleAPI.Controllers
             {
                 _context.Customers.Update(customer);
                 await _context.SaveChangesAsync();
+
+                // Lấy thời gian Việt Nam
+                TimeZoneInfo vnTimeZone = TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time");
+                DateTime serverTime = DateTime.UtcNow;
+                DateTime serverTimeUtc = DateTime.SpecifyKind(serverTime, DateTimeKind.Utc); // Đặt Kind của thời gian thành Utc
+                DateTime vietnamTime = TimeZoneInfo.ConvertTime(serverTimeUtc, vnTimeZone);
+
+
+                customer.UpdateAt = vietnamTime; // Cập nhật thời gian sửa
+                _context.SaveChanges();
+
                 return Ok(new { success = true, message = "Cập nhật thông tin khách hàng thành công" });
             }
             catch (Exception ex) 
@@ -317,7 +330,101 @@ namespace PhoneSaleAPI.Controllers
             _context.Customers.Update(customer);
             await _context.SaveChangesAsync();
 
+            // Lấy thời gian Việt Nam
+            TimeZoneInfo vnTimeZone = TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time");
+            DateTime serverTime = DateTime.UtcNow;
+            DateTime serverTimeUtc = DateTime.SpecifyKind(serverTime, DateTimeKind.Utc); // Đặt Kind của thời gian thành Utc
+            DateTime vietnamTime = TimeZoneInfo.ConvertTime(serverTimeUtc, vnTimeZone);
+
+            customer.UpdateAt = vietnamTime; // Cập nhật thời gian sửa
+            _context.SaveChanges();
+
             return Ok(new { success = true, message = "Đổi mật khẩu thành công" });
+        }
+
+        [HttpPut("UpdateToken/{customerId}")]
+        public async Task<IActionResult> UpdateToken(string customerId, [FromBody] TokenUpdateDTO tokenUpdateDTO)
+        {
+            var customer = await _context.Customers.FindAsync(customerId);
+            if (customer == null)
+            {
+                return NotFound(new { success = false, message = "Không tìm thấy khách hàng." });
+            }
+
+            customer.NotificationToken = tokenUpdateDTO.NotificationToken;
+            await _context.SaveChangesAsync();
+
+            return Ok(new { success = true, message = "Token đã được cập nhật thành công." });
+        }
+        [HttpPost("RemoveToken/{customerId}")]
+        public async Task<IActionResult> RemoveToken(string customerId)
+        {
+            var customer = await _context.Customers.FindAsync(customerId);
+            if (customer == null)
+            {
+                return NotFound("Customer not found.");
+            }
+
+            customer.NotificationToken = null;
+            await _context.SaveChangesAsync();
+
+            return Ok("Token removed successfully.");
+        }
+
+        [HttpPut("updateCustomerStatus/{custommerId}")]
+        public async Task<IActionResult> UpdateAccountStatus(string custommerId, [FromBody] CustomerStatusUpdate statusUpdate)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            var customer = await _context.Customers.FindAsync(custommerId);
+            if (customer == null)
+            {
+                return NotFound($"Không tìm thấy khách hàng có ID {custommerId}");
+            }
+
+            // Cập nhật trạng thái
+            customer.Status = statusUpdate.Status;
+            _context.Customers.Update(customer);
+            await _context.SaveChangesAsync();
+
+            // Lấy thời gian Việt Nam
+            TimeZoneInfo vnTimeZone = TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time");
+            DateTime serverTime = DateTime.UtcNow;
+            DateTime serverTimeUtc = DateTime.SpecifyKind(serverTime, DateTimeKind.Utc); // Đặt Kind của thời gian thành Utc
+            DateTime vietnamTime = TimeZoneInfo.ConvertTime(serverTimeUtc, vnTimeZone);
+
+
+            customer.UpdateAt = vietnamTime; // Cập nhật thời gian sửa
+            _context.SaveChanges();
+
+            return Ok(customer);
+        }
+
+        [HttpGet("LastLogin/{email}")]
+        public IActionResult GetLastLogin(string email)
+        {
+            var customer = _context.Customers.FirstOrDefault(a => a.Email == email);
+            if (customer == null)
+            {
+                return NotFound();
+            }
+
+            return Ok(new { LastLogin = customer.LastLogin });
+        }
+
+        [HttpGet("LastUpdate/{email}")]
+        public IActionResult GetLastUpdate(string email)
+        {
+            var customer = _context.Customers.FirstOrDefault(a => a.Email == email);
+            if (customer == null)
+            {
+                return NotFound();
+            }
+
+            return Ok(new { updateAt = customer.UpdateAt });
         }
     }
 }

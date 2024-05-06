@@ -5,6 +5,8 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using PhoneSaleAPI.DTO.Categories;
+using PhoneSaleAPI.DTO.Color;
 using PhoneSaleAPI.Models;
 
 namespace PhoneSaleAPI.Controllers
@@ -128,6 +130,139 @@ namespace PhoneSaleAPI.Controllers
 
             return NoContent();
         }
+
+        [HttpPost("CreateColorDTO")]
+        public async Task<IActionResult> AddColor([FromForm] CreateColorDTO colorDTO)
+        {
+            if (colorDTO.ColorImage != null)
+            {
+                var folderName = Path.Combine("Assets", "ColorImg");
+                var pathToSave = Path.Combine(Directory.GetCurrentDirectory(), folderName);
+
+                if (!Directory.Exists(pathToSave))
+                {
+                    Directory.CreateDirectory(pathToSave);
+                }
+
+                var fileName = Path.GetFileNameWithoutExtension(colorDTO.ColorImage.FileName);
+                var extension = Path.GetExtension(colorDTO.ColorImage.FileName);
+                fileName = $"{fileName}{extension}";
+                var fullPath = Path.Combine(pathToSave, fileName);
+
+                using (var stream = new FileStream(fullPath, FileMode.Create))
+                {
+                    await colorDTO.ColorImage.CopyToAsync(stream);
+                }
+
+                var dbPath = Path.Combine(folderName, fileName);
+
+                // Kiểm tra xem màu có tồn tại trong cơ sở dữ liệu không
+                var existingColor = await _context.Colors.FirstOrDefaultAsync(c => c.ColorName == colorDTO.ColorName);
+                if (existingColor != null)
+                {
+                    return Conflict("Màu đã tồn tại trong cơ sở dữ liệu.");
+                }
+
+                var lastColor = await _context.Colors
+                                    .OrderByDescending(c => c.ColorName)
+                                    .FirstOrDefaultAsync();
+
+                var newColor = new Color
+                {
+                    ColorName = colorDTO.ColorName,
+                    ColorImage = fileName,
+                    ColorPrice = colorDTO.ColorPrice
+                };
+
+                _context.Colors.Add(newColor);
+                await _context.SaveChangesAsync();
+
+                return Ok(new { fileName });
+            }
+            else
+            {
+                return BadRequest("Không tìm thấy hình ảnh màu để tải lên.");
+            }
+        }
+
+        [HttpGet("GetColorImage/{colorName}")]
+        public async Task<IActionResult> GetColorImage(string colorName)
+        {
+            var color = await _context.Colors.FirstOrDefaultAsync(c => c.ColorName == colorName);
+            if (color == null)
+            {
+                return NotFound(); // Trả về mã trạng thái 404 nếu không tìm thấy màu
+            }
+
+            var folderName = Path.Combine("Assets", "ColorImg");
+            var pathToLoad = Path.Combine(Directory.GetCurrentDirectory(), folderName, color.ColorImage);
+            var imageBytes = await System.IO.File.ReadAllBytesAsync(pathToLoad);
+
+            return File(imageBytes, "image/jpeg"); // Trả về file ảnh với kiểu MIME là "image/jpeg"
+        }
+
+        [HttpPut("UpdateColor/{colorName}")]
+        public async Task<IActionResult> UpdateColor(string colorName, [FromForm] CreateColorDTO colorDTO)
+        {
+            // Tìm kiếm danh mục để cập nhật
+            var existingColor = await _context.Colors.FindAsync(colorName);
+
+            if (existingColor == null)
+            {
+                return NotFound("Category not found.");
+            }
+
+            // Kiểm tra xem có tệp ảnh mới được cung cấp không
+            if (colorDTO.ColorImage != null)
+            {
+                // Xóa ảnh cũ nếu tồn tại
+                if (!string.IsNullOrEmpty(existingColor.ColorImage))
+                {
+                    var oldImagePath = Path.Combine(Directory.GetCurrentDirectory(), "Assets", "ColorImg", existingColor.ColorImage);
+                    if (System.IO.File.Exists(oldImagePath))
+                    {
+                        System.IO.File.Delete(oldImagePath);
+                    }
+                }
+
+                // Lưu ảnh mới vào thư mục
+                var folderName = Path.Combine("Assets", "ColorImg");
+                var pathToSave = Path.Combine(Directory.GetCurrentDirectory(), folderName);
+
+                if (!Directory.Exists(pathToSave))
+                {
+                    Directory.CreateDirectory(pathToSave);
+                }
+
+                var fileName = Path.GetFileNameWithoutExtension(colorDTO.ColorImage.FileName);
+                var extension = Path.GetExtension(colorDTO.ColorImage.FileName);
+                fileName = $"{fileName}{extension}";
+                var fullPath = Path.Combine(pathToSave, fileName);
+
+                using (var stream = new FileStream(fullPath, FileMode.Create))
+                {
+                    await colorDTO.ColorImage.CopyToAsync(stream);
+                }
+
+                // Cập nhật thông tin danh mục
+                existingColor.ColorImage = fileName;
+            }
+
+            // Cập nhật các thông tin khác của danh mục
+            existingColor.ColorName = colorDTO.ColorName;
+            existingColor.ColorPrice = colorDTO.ColorPrice;
+
+            try
+            {
+                await _context.SaveChangesAsync();
+                return Ok(existingColor);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
+        }
+
 
         private bool ColorExists(string id)
         {

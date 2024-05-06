@@ -231,8 +231,8 @@ namespace PhoneSaleAPI.Controllers
             return $"{billId}{newIdString}";
         }
 
-        [HttpGet("GetBillInfo/{customerId}")]
-        public async Task<ActionResult> GetBillInfo(string customerId, BillStatus status)
+        [HttpGet("GetBillOfCustomer/{customerId}")]
+        public async Task<ActionResult> GetBillOfCustomer(string customerId, BillStatus status)
         {
             try
             {
@@ -242,7 +242,7 @@ namespace PhoneSaleAPI.Controllers
                     {
                         b.BillId,
                         DateBill = DateTimeOffset.Parse(b.DateBill.ToString()).ToString("yyyy-MM-dd HH:mm"),
-                        TotalProducts = _context.BillDetails.Count(d => d.BillId == b.BillId),
+                        TotalProducts = _context.BillDetails.Where(d => d.BillId == b.BillId).Sum(d => d.Amount),
                         b.TotalBill,
                         status = b.Status
                     })
@@ -256,7 +256,7 @@ namespace PhoneSaleAPI.Controllers
             }
         }
 
-        [HttpGet("GetBillDetails/{billId}")]
+        [HttpGet("GetBillDetail/{billId}")]
         public async Task<ActionResult<BillSummaryDTO>> GetBillDetails(string billId)
         {
             var bill = await _context.Bills
@@ -283,7 +283,7 @@ namespace PhoneSaleAPI.Controllers
                     var storage = bd.StorageGbNavigation;
                     var product = bd.Product;
 
-                    return new BillItemDto
+                    return new BillItemDTO
                     {
                         ProductID = product.ProductId,
                         ProductName = product.ProductName,
@@ -295,7 +295,7 @@ namespace PhoneSaleAPI.Controllers
                         Img = bd.Product.ProductImages
                                     .Where(pi => pi.ColorName == bd.ColorName)
                                     .Select(pi => pi.ImagePath)
-                                    .FirstOrDefault() ?? "default-image-path.jpg"
+                                    .FirstOrDefault() ?? "default.jpg"
                     };
                 }).ToList();
 
@@ -310,5 +310,38 @@ namespace PhoneSaleAPI.Controllers
             };
             return Ok(billSummary);
         }
+        [HttpGet("GetBillByID")]
+        public async Task<ActionResult> GetBillByID(string customerId, string query)
+        {
+            try
+            {
+                var bills = await _context.Bills
+                    .Where(b => b.CustomerId == customerId)
+                    .SelectMany(b => b.BillDetails)
+                    .Where(bd => bd.Bill.BillId.Contains(query) || bd.Product.ProductName.Contains(query))
+                    .Select(bd => new
+                    {
+                        bd.Bill.BillId,
+                        DateBill = DateTimeOffset.Parse(bd.Bill.DateBill.ToString()).ToString("yyyy-MM-dd HH:mm"),
+                        TotalProducts = _context.BillDetails.Count(d => d.BillId == bd.Bill.BillId),
+                        bd.Bill.TotalBill,
+                        bd.Bill.Status
+                    })
+                    .Distinct()
+                    .ToListAsync();
+
+                if (!bills.Any())
+                {
+                    return NotFound("");
+                }
+
+                return Ok(bills);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
+        }
+
     }
 }

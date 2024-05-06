@@ -102,6 +102,78 @@ namespace PhoneSaleAPI.Controllers
 
             return NoContent();
         }
-    }
+
+        [HttpGet("GetShoppingCart/{id}")]
+        public async Task<ActionResult<ShoppingCartDetail>> GetShoppingCart(String id)
+        {
+            var shoppingCartDetail = await _context.ShoppingCartDetails.FindAsync(id);
+
+            if (shoppingCartDetail == null)
+            {
+                return NotFound(); // Trả về mã 404 Not Found nếu không tìm thấy chi tiết giỏ hàng
+            }
+
+            return shoppingCartDetail; // Trả về chi tiết giỏ hàng nếu tìm thấy thành công
+        }
+
+        [HttpPost("PostShoppingCartDetail")]
+        public async Task<ActionResult<int>> PostShoppingCartDetail([FromBody] CartDetailDTO parameters)
+        {
+            if (!ModelState.IsValid)
+            {
+                return 0;
+            }
+
+            // Kiểm tra xem sản phẩm đã tồn tại trong giỏ hàng chưa
+            var existingDetail = await _context.ShoppingCartDetails
+                .FirstOrDefaultAsync(d =>
+                    d.ShoppingCartId == parameters.ShoppingCartId &&
+                    d.ProductId == parameters.ProductId &&
+                    d.ColorName == parameters.ColorName &&
+                    d.StorageGb == parameters.StorageGb);
+
+            if (existingDetail != null)
+            {
+                // Cộng thêm số lượng và giá tiền
+                existingDetail.Amount += parameters.Amount;
+                existingDetail.Total += parameters.Total;
+            }
+            else
+            {
+                // Tạo một chi tiết giỏ hàng mới
+                var shoppingCartDetail = new ShoppingCartDetail
+                {
+                    ShoppingCartId = parameters.ShoppingCartId,
+                    ProductId = parameters.ProductId,
+                    ColorName = parameters.ColorName,
+                    StorageGb = parameters.StorageGb,
+                    Amount = parameters.Amount,
+                    Total = parameters.Total
+                };
+
+                // Thêm chi tiết giỏ hàng vào cơ sở dữ liệu
+                _context.ShoppingCartDetails.Add(shoppingCartDetail);
+            }
+
+            try
+            {
+                await _context.SaveChangesAsync();
+                return 1;
+            }
+            catch (DbUpdateException)
+            {
+                // Xử lý ngoại lệ DbUpdateException
+                return 0;
+            }
+        }
+
+            private bool ShoppingCartExists(string id)
+            {
+                return (_context.ShoppingCarts?.Any(e => e.ShoppingCartId == id)).GetValueOrDefault();
+            }
+
+        }
+
+    
 
 }

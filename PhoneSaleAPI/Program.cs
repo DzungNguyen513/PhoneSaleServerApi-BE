@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.FileProviders;
+using PhoneSaleAPI.Firebase;
 using PhoneSaleAPI.Models;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -56,6 +57,6 @@ app.UseStaticFiles(new StaticFileOptions
     RequestPath = "/Assets/Images"
 });
 
+//FirebaseManager.InitializeFirebaseApp();
+
 app.Run();
-
-
