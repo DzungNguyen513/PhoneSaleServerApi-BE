@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.FileProviders;
+using PhoneSaleAPI.Firebase;
 using PhoneSaleAPI.Models;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -16,7 +17,7 @@ builder.Services.AddCors(option => option.AddDefaultPolicy(policy =>
         policy.WithOrigins("http://127.0.0.1:5500").AllowAnyHeader().AllowAnyMethod().AllowCredentials()));
 
 builder.Services.AddDbContext<PhoneManagementContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("dbPhoneManagement")));
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 
 var app = builder.Build();
@@ -55,5 +56,7 @@ app.UseStaticFiles(new StaticFileOptions
             Path.Combine(Directory.GetCurrentDirectory(), "Assets", "Images")),
     RequestPath = "/Assets/Images"
 });
+
+FirebaseManager.InitializeFirebaseApp();
 
 app.Run();

@@ -33,13 +33,41 @@ namespace PhoneSaleAPI.Controllers
             return await _context.Products.ToListAsync();
         }
 
+        [HttpGet("GetProductCustomer")]
+        public async Task<ActionResult<IEnumerable<Product>>> GetProductCustomer()
+        {
+            var products = await _context.Products
+                                   .Where(p => p.Status == 1)
+                                   .ToListAsync();
+
+            if (products == null || products.Count == 0)
+            {
+                return NotFound();
+            }
+
+            return products;
+        }
+
         // GET: api/Product/5
         [HttpGet("GetProduct/{productId}")]
         public async Task<ActionResult<Product>> GetProduct(string productId)
         {
             var product = await _context.Products.FindAsync(productId);
 
-            if (product == null)
+            if (product == null || product.Status != 1)
+            {
+                return NotFound();
+            }
+
+            return product;
+        }
+
+        [HttpGet("GetProductCustomer/{productId}")]
+        public async Task<ActionResult<Product>> GetProductCustomer(string productId)
+        {
+            var product = await _context.Products.FindAsync(productId);
+
+            if (product == null || product.Status != 1)
             {
                 return NotFound();
             }
@@ -118,7 +146,7 @@ namespace PhoneSaleAPI.Controllers
                 return NotFound();
             }
 
-            product.Status = 1; // Chuyển trạng thái của sản phẩm sang 1
+            product.Status = 0; // Chuyển trạng thái của sản phẩm sang 1
 
             await _context.SaveChangesAsync();
 

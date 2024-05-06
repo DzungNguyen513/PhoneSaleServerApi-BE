@@ -123,7 +123,7 @@ namespace PhoneSaleAPI.Controllers
             {
                 return NotFound();
             }
-            vendor.Status = 1;
+            vendor.Status = 0;
             await _context.SaveChangesAsync();
 
             return NoContent();
