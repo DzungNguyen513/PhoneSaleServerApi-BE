@@ -251,6 +251,9 @@ namespace PhoneSaleAPI.Controllers
             // Cập nhật các thông tin khác của danh mục
             existingColor.ColorName = colorDTO.ColorName;
             existingColor.ColorPrice = colorDTO.ColorPrice;
+            TimeZoneInfo vnTimeZone = TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time");
+            DateTime vietnamTime = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, vnTimeZone);
+            existingColor.UpdateAt = vietnamTime;
 
             try
             {

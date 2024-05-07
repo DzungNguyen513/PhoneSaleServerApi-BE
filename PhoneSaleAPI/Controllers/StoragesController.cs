@@ -59,7 +59,9 @@ namespace PhoneSaleAPI.Controllers
             {
                 return BadRequest();
             }
-
+            TimeZoneInfo vnTimeZone = TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time");
+            DateTime vietnamTime = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, vnTimeZone);
+            storage.UpdateAt = vietnamTime;
             _context.Entry(storage).State = EntityState.Modified;
 
             try

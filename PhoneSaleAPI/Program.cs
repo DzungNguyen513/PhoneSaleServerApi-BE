@@ -56,5 +56,7 @@ app.UseStaticFiles(new StaticFileOptions
             Path.Combine(Directory.GetCurrentDirectory(), "Assets", "Images")),
     RequestPath = "/Assets/Images"
 });
+
 FirebaseManager.InitializeFirebaseApp();
+
 app.Run();
