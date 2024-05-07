@@ -110,27 +110,39 @@ namespace PhoneSaleAPI.Controllers
             return CreatedAtAction("GetBill", new { id = bill.BillId }, bill);
         }
 
-        // DELETE: api/Bill/5
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteBill(string id)
-        {
-            if (_context.Bills == null)
-            {
-                return NotFound();
-            }
-            var bill = await _context.Bills.FindAsync(id);
-            if (bill == null)
-            {
-                return NotFound();
-            }
+		// DELETE: api/Bill/5
+		[HttpDelete("{id}")]
+		public async Task<IActionResult> DeleteBill(string id)
+		{
+			var bill = await _context.Bills.FindAsync(id);
+			if (bill == null)
+			{
+				return NotFound();
+			}
 
-            _context.Bills.Remove(bill);
-            await _context.SaveChangesAsync();
+			bill.Status = BillStatus.DaHuy;
 
-            return NoContent();
-        }
+			try
+			{
+				await _context.SaveChangesAsync();
+			}
+			catch (DbUpdateConcurrencyException)
+			{
+				if (!BillExists(id))
+				{
+					return NotFound();
+				}
+				else
+				{
+					throw;
+				}
+			}
 
-        private bool BillExists(string id)
+			return NoContent();
+		}
+
+
+		private bool BillExists(string id)
         {
             return (_context.Bills?.Any(e => e.BillId == id)).GetValueOrDefault();
         }
