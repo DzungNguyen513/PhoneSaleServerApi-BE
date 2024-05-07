@@ -28,7 +28,6 @@ namespace PhoneSaleAPI.Controllers
         public async Task<ActionResult<IEnumerable<Product>>> GetProducts()
         {
             var products = await _context.Products
-                                   .Where(p => p.Status == 1)
                                    .ToListAsync();
 
             if (products == null || products.Count == 0)
@@ -60,7 +59,7 @@ namespace PhoneSaleAPI.Controllers
         {
             var product = await _context.Products.FindAsync(productId);
 
-            if (product == null || product.Status != 1)
+            if (product == null)
             {
                 return NotFound();
             }
@@ -91,6 +90,9 @@ namespace PhoneSaleAPI.Controllers
             {
                 return BadRequest();
             }
+            TimeZoneInfo vnTimeZone = TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time");
+            DateTime vietnamTime = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, vnTimeZone);
+            product.UpdateAt = vietnamTime;
 
             _context.Entry(product).State = EntityState.Modified;
 
