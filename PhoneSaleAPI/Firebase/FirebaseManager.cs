@@ -12,7 +12,7 @@ namespace PhoneSaleAPI.Firebase
         {
             if (FirebaseApp.DefaultInstance == null)
             {
-                string pathToJson = @"D:\A. BTL API\PhoneSaleAPI\PhoneSaleAPI\phonesaleapp-firebase.json";
+                string pathToJson = @"D:\API\BTL-API\PhoneSaleAPI\PhoneSaleAPI\phonesaleapp-firebase.json";
                 app = FirebaseApp.Create(new AppOptions
                 {
                     Credential = GoogleCredential.FromFile(pathToJson)
