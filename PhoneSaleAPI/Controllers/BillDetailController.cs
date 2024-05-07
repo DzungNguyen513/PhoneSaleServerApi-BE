@@ -31,60 +31,72 @@ namespace PhoneSaleAPI.Controllers
             return await _context.BillDetails.ToListAsync();
         }
 
-        // GET: api/BillDetail/5
-        [HttpGet("{id}")]
-        public async Task<ActionResult<IEnumerable<BillDetail>>> GetBillDetail(string id)
-        {
-            if (_context.BillDetails == null)
-            {
-                return NotFound();
-            }
+		// GET: api/BillDetail/5
+		[HttpGet("{id}")]
+		public async Task<ActionResult<IEnumerable<BillDetail>>> GetBillDetail(string id)
+		{
+			if (_context.BillDetails == null)
+			{
+				return NotFound();
+			}
 
-            var billDetails = await _context.BillDetails.Where(b => b.BillId == id).ToListAsync();
+			var billDetails = await _context.BillDetails.Where(b => b.BillId == id).ToListAsync();
 
-            if (billDetails == null || billDetails.Count == 0)
-            {
-                return NotFound();
-            }
+			if (billDetails == null || billDetails.Count == 0)
+			{
+				return NotFound();
+			}
 
-            return billDetails;
-        }
+			return billDetails;
+		}
 
 
-        // PUT: api/BillDetail/5
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPut("{id}")]
-        public async Task<IActionResult> PutBillDetail(string id, BillDetail billDetail)
-        {
-            if (id != billDetail.BillId)
-            {
-                return BadRequest();
-            }
+		// PUT: api/BillDetail/{billId}/{productId}/{colorName}/{storageGb}
+		// To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
+		[HttpPut("{billId}/{productId}/{colorName}/{storageGb}")]
+		public async Task<IActionResult> PutBillDetail(string billId, string productId, int storageGb, string colorName, BillDetail billDetail)
+		{
+			if (billId != billDetail.BillId || productId != billDetail.ProductId || storageGb != billDetail.StorageGb || colorName != billDetail.ColorName)
+			{
+				return BadRequest();
+			}
 
-            _context.Entry(billDetail).State = EntityState.Modified;
+			var existingBillDetail = await _context.BillDetails.FirstOrDefaultAsync(b => b.BillId == billId && b.ProductId == productId && b.StorageGb == storageGb && b.ColorName == colorName);
 
-            try
-            {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!BillDetailExists(id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
-            }
+			if (existingBillDetail == null)
+			{
+				return NotFound();
+			}
 
-            return NoContent();
-        }
+			// Cập nhật các trường của BillDetail
+			existingBillDetail.Amount = billDetail.Amount;
+			existingBillDetail.Price = billDetail.Price;
+			existingBillDetail.Discount = billDetail.Discount;
+			existingBillDetail.Total = billDetail.Total;
+			existingBillDetail.UpdateAt = billDetail.UpdateAt;
 
-        // POST: api/BillDetail
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPost]
+			try
+			{
+				await _context.SaveChangesAsync();
+			}
+			catch (DbUpdateConcurrencyException)
+			{
+				if (!BillDetailExists(billId))
+				{
+					return NotFound();
+				}
+				else
+				{
+					throw;
+				}
+			}
+
+			return NoContent();
+		}
+
+		// POST: api/BillDetail
+		// To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
+		[HttpPost]
         public async Task<ActionResult<BillDetail>> PostBillDetail(BillDetail billDetail)
         {
             if (_context.BillDetails == null)
@@ -135,5 +147,8 @@ namespace PhoneSaleAPI.Controllers
         {
             return (_context.BillDetails?.Any(e => e.BillId == id)).GetValueOrDefault();
         }
-    }
+
+		
+	}
+
 }

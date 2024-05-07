@@ -216,6 +216,16 @@ namespace PhoneSaleAPI.Controllers
             _context.Accounts.Update(account);
             await _context.SaveChangesAsync();
 
+            // Lấy thời gian Việt Nam
+            TimeZoneInfo vnTimeZone = TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time");
+            DateTime serverTime = DateTime.UtcNow;
+            DateTime serverTimeUtc = DateTime.SpecifyKind(serverTime, DateTimeKind.Utc); // Đặt Kind của thời gian thành Utc
+            DateTime vietnamTime = TimeZoneInfo.ConvertTime(serverTimeUtc, vnTimeZone);
+
+
+            account.UpdateAt = vietnamTime; // Cập nhật thời gian sửa
+            _context.SaveChanges();
+
             return Ok(account);
         }
         [HttpPost("ChangePassword")]
@@ -256,6 +266,16 @@ namespace PhoneSaleAPI.Controllers
             _context.Accounts.Update(account);
             await _context.SaveChangesAsync();
 
+            // Lấy thời gian Việt Nam
+            TimeZoneInfo vnTimeZone = TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time");
+            DateTime serverTime = DateTime.UtcNow;
+            DateTime serverTimeUtc = DateTime.SpecifyKind(serverTime, DateTimeKind.Utc); // Đặt Kind của thời gian thành Utc
+            DateTime vietnamTime = TimeZoneInfo.ConvertTime(serverTimeUtc, vnTimeZone);
+
+
+            account.UpdateAt = vietnamTime; // Cập nhật thời gian sửa
+            _context.SaveChanges();
+
             return Ok(new { success = true, message = "Đổi mật khẩu thành công" });
         }
 
@@ -269,6 +289,18 @@ namespace PhoneSaleAPI.Controllers
             }
 
             return Ok(new { LastLogin = account.LastLogin });
+        }
+
+        [HttpGet("LastUpdate/{username}")]
+        public IActionResult GetLastUpdate(string username)
+        {
+            var account = _context.Accounts.FirstOrDefault(a => a.Username == username);
+            if (account == null)
+            {
+                return NotFound();
+            }
+
+            return Ok(new { updateAt = account.UpdateAt });
         }
     }
 }
