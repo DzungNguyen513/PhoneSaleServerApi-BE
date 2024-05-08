@@ -430,19 +430,43 @@ namespace PhoneSaleAPI.Controllers
 
 
         [HttpGet("SearchProducts/{searchString}")]
-        public ActionResult<IEnumerable<Product>> SearchProducts(string searchString)
+        public ActionResult<IEnumerable<Product>> SearchProducts(string searchString, String? categoryId, int? priceMin, int? priceMax)
         {
-            // Lọc sản phẩm dựa trên chuỗi tìm kiếm
-            var products = _context.Products
-                                    .Where(p => p.Status == 1 && (p.ProductName.Contains(searchString) || p.Detail.Contains(searchString)))
-                                    .ToList();
+            var productsQuery = _context.Products.Where(p => p.Status == 1 && (p.ProductName.Contains(searchString) || p.Detail.Contains(searchString)));
 
-            if (products == null )
+            if (!string.IsNullOrEmpty(categoryId))
             {
-                // Trả về 404 nếu không tìm thấy sản phẩm nào thỏa mãn điều kiện tìm kiếm
-                return NotFound();
+                productsQuery = productsQuery.Where(p => p.CategoryId == categoryId);
             }
+
+            if (priceMin.HasValue && priceMax.HasValue)
+            {
+                productsQuery = productsQuery.Where(p => p.Price >= priceMin && p.Price <= priceMax);
+            }
+
+            
+            var products = productsQuery.ToList();
+           
             return products;
+        }
+        [HttpGet("SortProductsByPrice/{i}")]
+        public ActionResult<IEnumerable<Product>> SortProductsByPrice(int i)
+        {
+            IQueryable<Product> productsQuery = _context.Products.Where(p => p.Status == 1);
+
+            if (i == 1)
+            {
+                // Sắp xếp tăng dần theo giá
+                productsQuery = productsQuery.OrderBy(p => p.Price);
+            }
+            else if (i == 0)
+            {
+                // Sắp xếp giảm dần theo giá
+                productsQuery = productsQuery.OrderByDescending(p => p.Price);
+            }
+
+            var sortedProducts = productsQuery.ToList();
+            return sortedProducts;
         }
 
 
