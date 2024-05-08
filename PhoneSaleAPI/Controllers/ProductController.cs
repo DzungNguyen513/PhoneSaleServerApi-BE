@@ -408,6 +408,27 @@ namespace PhoneSaleAPI.Controllers
             return NoContent();
         }
 
+        [HttpDelete("DeleteProductDetail/{productId}/{storageGb}/{colorName}")]
+        public async Task<IActionResult> DeleteProductDetail(string productId, int storageGb, string colorName)
+        {
+            // Tìm chi tiết sản phẩm cần xóa trong cơ sở dữ liệu
+            var productDetail = await _context.ProductDetails.FirstOrDefaultAsync(d =>
+                d.ProductId == productId && d.StorageGb == storageGb && d.ColorName == colorName);
+
+            // Nếu chi tiết sản phẩm không tồn tại, trả về lỗi 404 Not Found
+            if (productDetail == null)
+            {
+                return NotFound("Product detail not found.");
+            }
+
+            // Xóa chi tiết sản phẩm khỏi cơ sở dữ liệu
+            _context.ProductDetails.Remove(productDetail);
+            await _context.SaveChangesAsync();
+
+            return NoContent();
+        }
+
+
         private bool ProductDetailExists(string productId, int storageGb, string colorName)
         {
             return _context.ProductDetails.Any(d => d.ProductId == productId && d.StorageGb == storageGb && d.ColorName == colorName);
