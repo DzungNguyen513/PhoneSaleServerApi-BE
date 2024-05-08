@@ -199,11 +199,9 @@ namespace PhoneSaleAPI.Controllers
 
                 try
                 {
-                    // Tạo GUID mới
-                    var guid = Guid.NewGuid();
-
-                    // Sử dụng GUID để tạo mã sản phẩm mới
-                    var newProductId = $"PRD{guid.ToString().Substring(0, 6).ToUpper()}";
+                    var lastProduct = await _context.Products.OrderByDescending(p => p.ProductId).FirstOrDefaultAsync();
+                    var productIdNumber = lastProduct != null ? int.Parse(lastProduct.ProductId.Replace("PRD", "")) + 1 : 1;
+                    var newProductId = $"PRD{productIdNumber:000}";
 
                     var product = new Product
                     {
@@ -404,6 +402,27 @@ namespace PhoneSaleAPI.Controllers
 
             return NoContent();
         }
+
+        [HttpDelete("DeleteProductDetail/{productId}/{storageGb}/{colorName}")]
+        public async Task<IActionResult> DeleteProductDetail(string productId, int storageGb, string colorName)
+        {
+            // Tìm chi tiết sản phẩm cần xóa trong cơ sở dữ liệu
+            var productDetail = await _context.ProductDetails.FirstOrDefaultAsync(d =>
+                d.ProductId == productId && d.StorageGb == storageGb && d.ColorName == colorName);
+
+            // Nếu chi tiết sản phẩm không tồn tại, trả về lỗi 404 Not Found
+            if (productDetail == null)
+            {
+                return NotFound("Product detail not found.");
+            }
+
+            // Xóa chi tiết sản phẩm khỏi cơ sở dữ liệu
+            _context.ProductDetails.Remove(productDetail);
+            await _context.SaveChangesAsync();
+
+            return NoContent();
+        }
+
 
         private bool ProductDetailExists(string productId, int storageGb, string colorName)
         {

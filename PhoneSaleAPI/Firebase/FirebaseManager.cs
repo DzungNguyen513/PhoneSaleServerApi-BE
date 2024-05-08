@@ -19,6 +19,7 @@ namespace PhoneSaleAPI.Firebase
                 });
             }
         }
+
         public static async Task<string> SendNotificationToTopic(string topic, string title, string body)
         {
             var message = new Message()

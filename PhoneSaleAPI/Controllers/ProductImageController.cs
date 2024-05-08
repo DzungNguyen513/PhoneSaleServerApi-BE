@@ -57,13 +57,15 @@ namespace PhoneSaleAPI.Controllers
                 }
                 var newProductImageId = $"PRDIMG{lastNumber + 1:000}";
 
+                var isPrimary = string.IsNullOrEmpty(productImageDTO.ColorName);
+
                 var newProductImage = new ProductImage
                 {
                     ProductImageId = newProductImageId,
                     ProductId = productId,
                     ColorName = productImageDTO.ColorName,
                     ImagePath = fileName,
-                    IsPrimary = productImageDTO.IsPrimary
+                    IsPrimary = isPrimary
                 };
 
                 _context.ProductImages.Add(newProductImage);
@@ -76,6 +78,7 @@ namespace PhoneSaleAPI.Controllers
                 return BadRequest("Không tìm thấy hình ảnh để tải lên.");
             }
         }
+
         [HttpGet("GetProductImagesByPath/{productId}")]
         public async Task<ActionResult<IEnumerable<string>>> GetProductImagesByPath(string productId)
         {
