@@ -199,11 +199,9 @@ namespace PhoneSaleAPI.Controllers
 
                 try
                 {
-                    // Tạo GUID mới
-                    var guid = Guid.NewGuid();
-
-                    // Sử dụng GUID để tạo mã sản phẩm mới
-                    var newProductId = $"PRD{guid.ToString().Substring(0, 6).ToUpper()}";
+                    var lastProduct = await _context.Products.OrderByDescending(p => p.ProductId).FirstOrDefaultAsync();
+                    var productIdNumber = lastProduct != null ? int.Parse(lastProduct.ProductId.Replace("PRD", "")) + 1 : 1;
+                    var newProductId = $"PRD{productIdNumber:000}";
 
                     var product = new Product
                     {
