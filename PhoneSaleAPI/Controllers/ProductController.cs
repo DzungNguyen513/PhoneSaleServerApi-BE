@@ -385,9 +385,6 @@ namespace PhoneSaleAPI.Controllers
 
             // Cập nhật thuộc tính của existingDetail
             existingDetail.Amount = productDetailDTO.Amount;
-
-
-
             try
             {
                 await _context.SaveChangesAsync();
@@ -447,8 +444,60 @@ namespace PhoneSaleAPI.Controllers
             return products;
         }
 
+		// PUT: api/Product/EditAmoutProduct/{productId}/{storageGb}/{colorName}/{amount}
+		[HttpPut("EditAmoutProduct/{productId}/{storageGb}/{colorName}/{amount}")]
+		public async Task<IActionResult> EditAmountProduct(string productId, int storageGb, string colorName, int amount)
+		{
+			try
+			{
+				// Kiểm tra xem chi tiết sản phẩm có tồn tại trong cơ sở dữ liệu không
+				var existingDetail = await _context.ProductDetails.FirstOrDefaultAsync(d =>
+					d.ProductId == productId && d.StorageGb == storageGb && d.ColorName == colorName);
+
+				if (existingDetail == null)
+				{
+					return NotFound("Product detail not found.");
+				}
+
+				// Cập nhật số lượng sản phẩm
+				existingDetail.Amount = amount;
+
+				await _context.SaveChangesAsync();
+
+				return NoContent();
+			}
+			catch (Exception ex)
+			{
+				return StatusCode(500, $"Internal server error: {ex.Message}");
+			}
+		}
+
+		[HttpGet("AmountProduct/{productId}/{storageGb}/{colorName}")]
+		public async Task<ActionResult<int>> GetAmountProduct(string productId, int storageGb, string colorName)
+		{
+			try
+			{
+				// Tìm kiếm chi tiết sản phẩm trong cơ sở dữ liệu
+				var productDetail = await _context.ProductDetails.FirstOrDefaultAsync(pd =>
+					pd.ProductId == productId && pd.StorageGb == storageGb && pd.ColorName == colorName);
+
+				if (productDetail == null)
+				{
+					// Trả về 404 nếu không tìm thấy chi tiết sản phẩm
+					return NotFound("Product detail not found.");
+				}
+
+				// Trả về số lượng sản phẩm
+				return Ok(productDetail.Amount);
+			}
+			catch (Exception ex)
+			{
+				// Xử lý nếu có lỗi xảy ra
+				return StatusCode(500, $"Internal server error: {ex.Message}");
+			}
+		}
 
 
-    }
-    }
+	}
+}
 
