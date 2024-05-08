@@ -21,19 +21,25 @@ namespace PhoneSaleAPI.Controllers
             _context = context;
         }
 
-        // GET: api/Bill
-        [HttpGet]
-        public async Task<ActionResult<IEnumerable<Bill>>> GetBills()
-        {
-          if (_context.Bills == null)
-          {
-              return NotFound();
-          }
-            return await _context.Bills.ToListAsync();
-        }
+		// GET: api/Bill
+		[HttpGet]
+		public async Task<ActionResult<IEnumerable<Bill>>> GetBills()
+		{
+			if (_context.Bills == null)
+			{
+				return NotFound();
+			}
 
-        // GET: api/Bill/5
-        [HttpGet("{id}")]
+			var bills = await _context.Bills
+				.OrderByDescending(b => b.DateBill)
+				.ToListAsync();
+
+			return bills;
+		}
+
+
+		// GET: api/Bill/5
+		[HttpGet("{id}")]
         public async Task<ActionResult<Bill>> GetBill(string id)
         {
           if (_context.Bills == null)
@@ -381,6 +387,29 @@ namespace PhoneSaleAPI.Controllers
 			}
 		}
 
+		[HttpGet("SearchCustomerName/{searchString}")]
+		public async Task<ActionResult<IEnumerable<Bill>>> SearchCustomerName(string searchString)
+		{
+			try
+			{
+				// Tìm kiếm các hóa đơn của khách hàng gần đúng dựa trên chuỗi tìm kiếm
+				var bills = await _context.Bills
+					.Where(b => EF.Functions.Like(b.CustomerName, $"%{searchString}%"))
+					.ToListAsync();
+
+				if (bills.Count == 0)
+				{
+					// Nếu không tìm thấy kết quả, trả về 404 Not Found
+					return NotFound("Không tìm thấy khách hàng phù hợp.");
+				}
+
+				return Ok(bills);
+			}
+			catch (Exception ex)
+			{
+				return StatusCode(500, $"Lỗi: {ex.Message}");
+			}
+		}
 
 	}
 }
