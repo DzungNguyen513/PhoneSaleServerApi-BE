@@ -447,10 +447,15 @@ namespace PhoneSaleAPI.Controllers
 
 
 
-        [HttpGet("SearchProducts/{searchString}")]
-        public ActionResult<IEnumerable<Product>> SearchProducts(string searchString, String? categoryId, int? priceMin, int? priceMax)
+        [HttpGet("SearchProducts")]
+        public ActionResult<IEnumerable<Product>> SearchProducts(string? searchString, String? categoryId, int? priceMin, int? priceMax)
         {
-            var productsQuery = _context.Products.Where(p => p.Status == 1 && (p.ProductName.Contains(searchString) || p.Detail.Contains(searchString)));
+            var productsQuery = _context.Products.Where(p => p.Status == 1);
+
+            if (!string.IsNullOrEmpty(searchString))
+            {
+                productsQuery = productsQuery.Where(p => p.ProductName.Contains(searchString) || p.Detail.Contains(searchString));
+            }
 
             if (!string.IsNullOrEmpty(categoryId))
             {
