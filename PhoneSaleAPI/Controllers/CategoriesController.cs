@@ -61,6 +61,13 @@ namespace PhoneSaleAPI.Controllers
                 return BadRequest();
             }
 
+            // Lấy thời gian Việt Nam
+            TimeZoneInfo vnTimeZone = TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time");
+            DateTime vietnamTime = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, vnTimeZone);
+
+            category.UpdateAt = vietnamTime; // Cập nhật thời gian sửa
+            await _context.SaveChangesAsync();
+
             _context.Entry(category).State = EntityState.Modified;
 
             try
@@ -81,6 +88,7 @@ namespace PhoneSaleAPI.Controllers
 
             return NoContent();
         }
+
 
         // POST: api/Categories
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
@@ -251,6 +259,9 @@ namespace PhoneSaleAPI.Controllers
             // Cập nhật các thông tin khác của danh mục
             existingCategory.CategoryName = categoryDTO.CategoryName;
             existingCategory.Status = categoryDTO.Status;
+            TimeZoneInfo vnTimeZone = TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time");
+            DateTime vietnamTime = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, vnTimeZone);
+            existingCategory.UpdateAt = vietnamTime;
 
             try
             {

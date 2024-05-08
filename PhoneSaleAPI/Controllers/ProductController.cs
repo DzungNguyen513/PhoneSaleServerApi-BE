@@ -28,7 +28,6 @@ namespace PhoneSaleAPI.Controllers
         public async Task<ActionResult<IEnumerable<Product>>> GetProducts()
         {
             var products = await _context.Products
-                                   .Where(p => p.Status == 1)
                                    .ToListAsync();
 
             if (products == null || products.Count == 0)
@@ -60,7 +59,7 @@ namespace PhoneSaleAPI.Controllers
         {
             var product = await _context.Products.FindAsync(productId);
 
-            if (product == null || product.Status != 1)
+            if (product == null)
             {
                 return NotFound();
             }
@@ -91,6 +90,9 @@ namespace PhoneSaleAPI.Controllers
             {
                 return BadRequest();
             }
+            TimeZoneInfo vnTimeZone = TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time");
+            DateTime vietnamTime = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, vnTimeZone);
+            product.UpdateAt = vietnamTime;
 
             _context.Entry(product).State = EntityState.Modified;
 
@@ -197,11 +199,9 @@ namespace PhoneSaleAPI.Controllers
 
                 try
                 {
-                    // Tạo GUID mới
-                    var guid = Guid.NewGuid();
-
-                    // Sử dụng GUID để tạo mã sản phẩm mới
-                    var newProductId = $"PRD{guid.ToString().Substring(0, 6).ToUpper()}";
+                    var lastProduct = await _context.Products.OrderByDescending(p => p.ProductId).FirstOrDefaultAsync();
+                    var productIdNumber = lastProduct != null ? int.Parse(lastProduct.ProductId.Replace("PRD", "")) + 1 : 1;
+                    var newProductId = $"PRD{productIdNumber:000}";
 
                     var product = new Product
                     {
@@ -383,9 +383,6 @@ namespace PhoneSaleAPI.Controllers
 
             // Cập nhật thuộc tính của existingDetail
             existingDetail.Amount = productDetailDTO.Amount;
-
-
-
             try
             {
                 await _context.SaveChangesAsync();
@@ -405,6 +402,27 @@ namespace PhoneSaleAPI.Controllers
 
             return NoContent();
         }
+
+        [HttpDelete("DeleteProductDetail/{productId}/{storageGb}/{colorName}")]
+        public async Task<IActionResult> DeleteProductDetail(string productId, int storageGb, string colorName)
+        {
+            // Tìm chi tiết sản phẩm cần xóa trong cơ sở dữ liệu
+            var productDetail = await _context.ProductDetails.FirstOrDefaultAsync(d =>
+                d.ProductId == productId && d.StorageGb == storageGb && d.ColorName == colorName);
+
+            // Nếu chi tiết sản phẩm không tồn tại, trả về lỗi 404 Not Found
+            if (productDetail == null)
+            {
+                return NotFound("Product detail not found.");
+            }
+
+            // Xóa chi tiết sản phẩm khỏi cơ sở dữ liệu
+            _context.ProductDetails.Remove(productDetail);
+            await _context.SaveChangesAsync();
+
+            return NoContent();
+        }
+
 
         private bool ProductDetailExists(string productId, int storageGb, string colorName)
         {
@@ -469,8 +487,60 @@ namespace PhoneSaleAPI.Controllers
             return sortedProducts;
         }
 
+		// PUT: api/Product/EditAmoutProduct/{productId}/{storageGb}/{colorName}/{amount}
+		[HttpPut("EditAmoutProduct/{productId}/{storageGb}/{colorName}/{amount}")]
+		public async Task<IActionResult> EditAmountProduct(string productId, int storageGb, string colorName, int amount)
+		{
+			try
+			{
+				// Kiểm tra xem chi tiết sản phẩm có tồn tại trong cơ sở dữ liệu không
+				var existingDetail = await _context.ProductDetails.FirstOrDefaultAsync(d =>
+					d.ProductId == productId && d.StorageGb == storageGb && d.ColorName == colorName);
+
+				if (existingDetail == null)
+				{
+					return NotFound("Product detail not found.");
+				}
+
+				// Cập nhật số lượng sản phẩm
+				existingDetail.Amount = amount;
+
+				await _context.SaveChangesAsync();
+
+				return NoContent();
+			}
+			catch (Exception ex)
+			{
+				return StatusCode(500, $"Internal server error: {ex.Message}");
+			}
+		}
+
+		[HttpGet("AmountProduct/{productId}/{storageGb}/{colorName}")]
+		public async Task<ActionResult<int>> GetAmountProduct(string productId, int storageGb, string colorName)
+		{
+			try
+			{
+				// Tìm kiếm chi tiết sản phẩm trong cơ sở dữ liệu
+				var productDetail = await _context.ProductDetails.FirstOrDefaultAsync(pd =>
+					pd.ProductId == productId && pd.StorageGb == storageGb && pd.ColorName == colorName);
+
+				if (productDetail == null)
+				{
+					// Trả về 404 nếu không tìm thấy chi tiết sản phẩm
+					return NotFound("Product detail not found.");
+				}
+
+				// Trả về số lượng sản phẩm
+				return Ok(productDetail.Amount);
+			}
+			catch (Exception ex)
+			{
+				// Xử lý nếu có lỗi xảy ra
+				return StatusCode(500, $"Internal server error: {ex.Message}");
+			}
+		}
 
 
-    }
-    }
+	}
+}
 

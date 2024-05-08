@@ -12,13 +12,14 @@ namespace PhoneSaleAPI.Firebase
         {
             if (FirebaseApp.DefaultInstance == null)
             {
-                string pathToJson = @"D:\A. BTL API\PhoneSaleAPI\PhoneSaleAPI\phonesaleapp-firebase.json";
+                string pathToJson = @"D:\Tài liệu học tập\N3-HK2\Lập trình API\BTL\PhoneSaleAPI\PhoneSaleAPI\phonesaleapp-firebase.json";
                 app = FirebaseApp.Create(new AppOptions
                 {
                     Credential = GoogleCredential.FromFile(pathToJson)
                 });
             }
         }
+
         public static async Task<string> SendNotificationToTopic(string topic, string title, string body)
         {
             var message = new Message()
