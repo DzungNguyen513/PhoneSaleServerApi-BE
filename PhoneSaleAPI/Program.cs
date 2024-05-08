@@ -57,6 +57,6 @@ app.UseStaticFiles(new StaticFileOptions
     RequestPath = "/Assets/Images"
 });
 
-FirebaseManager.InitializeFirebaseApp();
+//FirebaseManager.InitializeFirebaseApp();
 
 app.Run();
