@@ -392,9 +392,10 @@ namespace PhoneSaleAPI.Controllers
 		{
 			try
 			{
-				// Tìm kiếm các hóa đơn của khách hàng gần đúng dựa trên chuỗi tìm kiếm
+				searchString = searchString.ToLower();
+
 				var bills = await _context.Bills
-					.Where(b => EF.Functions.Like(b.CustomerName, $"%{searchString}%"))
+					.Where(b => b.CustomerName.ToLower().Contains(searchString))
 					.ToListAsync();
 
 				if (bills.Count == 0)
