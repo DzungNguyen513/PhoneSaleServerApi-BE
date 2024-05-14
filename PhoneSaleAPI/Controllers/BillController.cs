@@ -387,30 +387,30 @@ namespace PhoneSaleAPI.Controllers
 			}
 		}
 
-		[HttpGet("SearchCustomerName/{searchString}")]
-		public async Task<ActionResult<IEnumerable<Bill>>> SearchCustomerName(string searchString)
-		{
-			try
-			{
-				searchString = searchString.ToLower();
+        [HttpGet("SearchCustomerName/{searchString}")]
+        public async Task<ActionResult<IEnumerable<Bill>>> SearchCustomerName(string searchString)
+        {
+            try
+            {
+                searchString = searchString.ToLower();
 
-				var bills = await _context.Bills
-					.Where(b => b.CustomerName.ToLower().Contains(searchString))
-					.ToListAsync();
+                var bills = await _context.Bills
+                    .Where(b => b.CustomerName.ToLower().Contains(searchString))
+                    .ToListAsync();
 
-				if (bills.Count == 0)
-				{
-					// Nếu không tìm thấy kết quả, trả về 404 Not Found
-					return NotFound("Không tìm thấy khách hàng phù hợp.");
-				}
+                if (bills.Count == 0)
+                {
+                    // Nếu không tìm thấy kết quả, trả về 404 Not Found
+                    return NotFound("Không tìm thấy khách hàng phù hợp.");
+                }
 
-				return Ok(bills);
-			}
-			catch (Exception ex)
-			{
-				return StatusCode(500, $"Lỗi: {ex.Message}");
-			}
-		}
+                return Ok(bills);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Lỗi: {ex.Message}");
+            }
+        }
 
-	}
+    }
 }
